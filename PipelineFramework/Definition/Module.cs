@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Specialized;
 
 namespace Pipeline.Definition
@@ -17,10 +16,9 @@ namespace Pipeline.Definition
             Type = type;
             Parameters = parameters;
         }
-        
+
         public string Name { get; set; }
         public string Type { get; set; }
-
         public NameValueCollection Parameters { get; set; }
     }
 }

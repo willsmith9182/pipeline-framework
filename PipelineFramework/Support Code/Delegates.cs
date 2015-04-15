@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-
-namespace Pipeline
+namespace Pipeline.Support_Code
 {
-    public delegate void PipelineContext<T>(T context) where T : PipelineContext;
+    public delegate void PipelineContext<in T>(T context) where T : PipelineContext;
 }

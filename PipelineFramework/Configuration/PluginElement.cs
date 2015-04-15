@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
 
 namespace Pipeline.Configuration
 {
@@ -13,14 +9,14 @@ namespace Pipeline.Configuration
         [ConfigurationProperty("name", IsRequired = true, IsKey = true)]
         public string Name
         {
-            get { return (string)base["name"]; }
+            get { return (string) base["name"]; }
             set { base["name"] = value; }
         }
 
         [ConfigurationProperty("type", IsRequired = true)]
         public string Type
         {
-            get { return (string)base["type"]; }
+            get { return (string) base["type"]; }
             set { base["type"] = value; }
         }
     }

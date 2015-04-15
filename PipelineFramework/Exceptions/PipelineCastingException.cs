@@ -1,18 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using Pipeline.Configuration;
 
-namespace Pipeline
+namespace Pipeline.Exceptions
 {
     public class PipelineCastingException : Exception
     {
-        public PipelineCastingException() : base() { }
+        public PipelineCastingException()
+        {
+        }
 
-        public PipelineCastingException(string message) : base(message) { }
+        public PipelineCastingException(string message) : base(message)
+        {
+        }
 
-        public PipelineCastingException(string message, Exception innerException) : base(message, innerException) { }
+        public PipelineCastingException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
     }
 }

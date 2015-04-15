@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Transactions;
-using Pipeline.Configuration;
+using Pipeline.Attributes;
+using Pipeline.EventArgs;
+using Pipeline.Support_Code;
+using TransactionScopeOption = Pipeline.Support_Code.TransactionScopeOption;
 
 namespace Pipeline
 {
@@ -16,36 +15,6 @@ namespace Pipeline
         where TEvents : PipelineEvents, new()
         where TContext : PipelineContext
     {
-        public static void ExecutePipelineEvent(string pipelineName, PipelineContext<TContext> pipelineEvent, TContext context)
-        {
-            new Backbone<TEvents, TContext>(pipelineName).Execute(pipelineEvent, context, TransactionScopeOption.Suppress);
-        }
-
-        public static void ExecutePipelineEvent(string pipelineName, PipelineContext<TContext> pipelineEvent, TContext context, TransactionScopeOption transactionScope)
-        {
-            new Backbone<TEvents, TContext>(pipelineName).Execute(pipelineEvent, context, transactionScope);
-        }
-
-        public static void ExecutePipeline(string pipelineName, TEvents pipelineEvents, TContext context)
-        {
-            new Backbone<TEvents, TContext>(pipelineName).Execute(pipelineEvents, context);
-        }
-
-        public static void ExecutePipelineEvent(Definition.Pipeline pipeline, PipelineContext<TContext> pipelineEvent, TContext context)
-        {
-            new Backbone<TEvents, TContext>(pipeline).Execute(pipelineEvent, context, TransactionScopeOption.Suppress);
-        }
-
-        public static void ExecutePipelineEvent(Definition.Pipeline pipeline, PipelineContext<TContext> pipelineEvent, TContext context, TransactionScopeOption transactionScope)
-        {
-            new Backbone<TEvents, TContext>(pipeline).Execute(pipelineEvent, context, transactionScope);
-        }
-        
-        public static void ExecutePipeline(Definition.Pipeline pipeline, TEvents pipelineEvents, TContext context)
-        {
-            new Backbone<TEvents, TContext>(pipeline).Execute(pipelineEvents, context);
-        }
-
         public Backbone(string pipelineName)
             : base(pipelineName)
         {
@@ -59,53 +28,41 @@ namespace Pipeline
         public event EventHandler<PipelineEventFiringEventArgs> PipelineEventFiring;
         public event EventHandler<PipelineEventFiredEventArgs> PipelineEventFired;
 
-        protected virtual void OnPipelineEventFiring(PipelineEventFiringEventArgs e)
-        {
-            if (this.PipelineEventFiring != null)
-                this.PipelineEventFiring(this, e);
-        }
-
-        protected virtual void OnPipelineEventFired(PipelineEventFiredEventArgs e)
-        {
-            if (this.PipelineEventFired != null)
-                this.PipelineEventFired(this, e);
-        }
-
         public void Execute(PipelineContext<TContext> pipelineEvent, TContext context)
         {
             Execute(pipelineEvent, context, TransactionScopeOption.Suppress);
         }
 
-        public void Execute(PipelineContext<TContext> pipelineEvent, TContext context, TransactionScopeOption transactionScope)
+        public void Execute(PipelineContext<TContext> pipelineEvent, TContext context,
+            TransactionScopeOption transactionScope)
         {
             Contract.Requires(pipelineEvent != null);
             Contract.Requires(context != null);
 
-            Definition.Pipeline pipeline = GetPipelineDefinition();
-            
-            System.Transactions.TransactionScopeOption scopeOption =
+            var pipeline = GetPipelineDefinition();
+
+            var scopeOption =
                 GetTransactionScopeOption(transactionScope);
 
             if (pipelineEvent != null)
             {
-                using (TransactionScope eventScope = new TransactionScope(scopeOption))
+                using (var eventScope = new TransactionScope(scopeOption))
                 {
-                    PipelineEventFiringEventArgs args = 
+                    var args =
                         new PipelineEventFiringEventArgs(pipeline.Name);
                     OnPipelineEventFiring(args);
-                    
+
                     if (!args.Cancel)
                     {
                         if (pipeline.InvokeAll)
                         {
-                            if (pipelineEvent != null)
-                                pipelineEvent(context);
+                            pipelineEvent(context);
                         }
                         else
                         {
-                            Delegate[] list = pipelineEvent.GetInvocationList();
+                            var list = pipelineEvent.GetInvocationList();
 
-                            foreach (PipelineContext<TContext> item in list)
+                            foreach (var item in list.OfType<PipelineContext<TContext>>())
                             {
                                 item(context);
                                 if (context.Cancel)
@@ -126,64 +83,61 @@ namespace Pipeline
             Contract.Requires(pipelineEvents != null);
             Contract.Requires(context != null);
 
-            Definition.Pipeline pipeline = GetPipelineDefinition();
+            var pipeline = GetPipelineDefinition();
 
-            PropertyInfo[] properties = pipelineEvents.GetType().GetProperties();
+            var properties = pipelineEvents.GetType().GetProperties();
 
-            List<PropertyInfo> sortedProperties = properties.ToList<PropertyInfo>();
+            var sortedProperties = properties.ToList();
             sortedProperties.Sort(new PropertyComparer());
 
-            System.Transactions.TransactionScopeOption pipelineScopeOption = TransactionRequirement(sortedProperties);
+            var pipelineScopeOption = TransactionRequirement(sortedProperties);
 
-            using (TransactionScope pipelineScope = new TransactionScope(pipelineScopeOption))
+            using (var pipelineScope = new TransactionScope(pipelineScopeOption))
             {
                 sortedProperties.ForEach(property =>
                 {
-                    object[] attributes =
-                        property.GetCustomAttributes(typeof(PipelineEventAttribute), true);
+                    var attributes =
+                        property.GetCustomAttributes(typeof (PipelineEventAttribute), true);
 
-                    if (attributes.Length > 0)
+                    if (attributes.Length <= 0) return;
+
+                    var attr = (PipelineEventAttribute) attributes[0];
+
+                    var scopeOption =
+                        GetTransactionScopeOption(attr.TransactionScopeOption);
+
+                    var value = property.GetValue(pipelineEvents, null);
+                    var eventProp = (PipelineContext<TContext>) value;
+
+                    if (eventProp == null) return;
+
+                    using (var eventScope = new TransactionScope(scopeOption))
                     {
-                        PipelineEventAttribute attr = (PipelineEventAttribute)attributes[0];
+                        var args = new PipelineEventFiringEventArgs(pipeline.Name, property.Name);
+                        OnPipelineEventFiring(args);
 
-                        System.Transactions.TransactionScopeOption scopeOption =
-                            GetTransactionScopeOption(attr.TransactionScopeOption);
-
-                        object value = property.GetValue(pipelineEvents, null);
-                        PipelineContext<TContext> eventProp = (PipelineContext<TContext>)value;
-
-                        if (eventProp != null)
+                        if (!args.Cancel)
                         {
-                            using (TransactionScope eventScope = new TransactionScope(scopeOption))
+                            if (pipeline.InvokeAll)
                             {
-                                PipelineEventFiringEventArgs args = new PipelineEventFiringEventArgs(pipeline.Name, property.Name);
-                                OnPipelineEventFiring(args);
-
-                                if (!args.Cancel)
-                                {
-                                    if (pipeline.InvokeAll)
-                                    {
-                                        if (eventProp != null)
-                                            eventProp(context);
-                                    }
-                                    else
-                                    {
-                                        Delegate[] list = eventProp.GetInvocationList();
-
-                                        foreach (PipelineContext<TContext> item in list)
-                                        {
-                                            item(context);
-                                            if (context.Cancel)
-                                                break;
-                                        }
-                                    }
-
-                                    OnPipelineEventFired(new PipelineEventFiredEventArgs(pipeline.Name, property.Name));
-                                }
-
-                                eventScope.Complete();
+                                eventProp(context);
                             }
+                            else
+                            {
+                                var list = eventProp.GetInvocationList();
+
+                                foreach (var item in list.OfType<PipelineContext<TContext>>())
+                                {
+                                    item(context);
+                                    if (context.Cancel)
+                                        break;
+                                }
+                            }
+
+                            OnPipelineEventFired(new PipelineEventFiredEventArgs(pipeline.Name, property.Name));
                         }
+
+                        eventScope.Complete();
                     }
                 });
 
@@ -191,34 +145,82 @@ namespace Pipeline
             }
         }
 
-        private System.Transactions.TransactionScopeOption GetTransactionScopeOption(TransactionScopeOption transactionScopeOption)
+        public static void ExecutePipelineEvent(string pipelineName, PipelineContext<TContext> pipelineEvent,
+            TContext context)
         {
-            System.Transactions.TransactionScopeOption scopeOption = System.Transactions.TransactionScopeOption.Required;
-
-            if (transactionScopeOption == TransactionScopeOption.RequiredNew)
-                scopeOption = System.Transactions.TransactionScopeOption.RequiresNew;
-            else if (transactionScopeOption == TransactionScopeOption.Suppress)
-                scopeOption = System.Transactions.TransactionScopeOption.Suppress;
-
-            return scopeOption;
+            new Backbone<TEvents, TContext>(pipelineName).Execute(pipelineEvent, context,
+                TransactionScopeOption.Suppress);
         }
 
-        private System.Transactions.TransactionScopeOption TransactionRequirement(List<PropertyInfo> sortedProperties)
+        public static void ExecutePipelineEvent(string pipelineName, PipelineContext<TContext> pipelineEvent,
+            TContext context, TransactionScopeOption transactionScope)
         {
-            System.Transactions.TransactionScopeOption pipelineScopeOption = System.Transactions.TransactionScopeOption.Suppress;
+            new Backbone<TEvents, TContext>(pipelineName).Execute(pipelineEvent, context, transactionScope);
+        }
 
-            foreach (PropertyInfo property in sortedProperties)
+        public static void ExecutePipeline(string pipelineName, TEvents pipelineEvents, TContext context)
+        {
+            new Backbone<TEvents, TContext>(pipelineName).Execute(pipelineEvents, context);
+        }
+
+        public static void ExecutePipelineEvent(Definition.Pipeline pipeline, PipelineContext<TContext> pipelineEvent,
+            TContext context)
+        {
+            new Backbone<TEvents, TContext>(pipeline).Execute(pipelineEvent, context, TransactionScopeOption.Suppress);
+        }
+
+        public static void ExecutePipelineEvent(Definition.Pipeline pipeline, PipelineContext<TContext> pipelineEvent,
+            TContext context, TransactionScopeOption transactionScope)
+        {
+            new Backbone<TEvents, TContext>(pipeline).Execute(pipelineEvent, context, transactionScope);
+        }
+
+        public static void ExecutePipeline(Definition.Pipeline pipeline, TEvents pipelineEvents, TContext context)
+        {
+            new Backbone<TEvents, TContext>(pipeline).Execute(pipelineEvents, context);
+        }
+
+        protected virtual void OnPipelineEventFiring(PipelineEventFiringEventArgs e)
+        {
+            if (PipelineEventFiring != null)
+                PipelineEventFiring(this, e);
+        }
+
+        protected virtual void OnPipelineEventFired(PipelineEventFiredEventArgs e)
+        {
+            if (PipelineEventFired != null)
+                PipelineEventFired(this, e);
+        }
+
+        private System.Transactions.TransactionScopeOption GetTransactionScopeOption(
+            TransactionScopeOption transactionScopeOption)
+        {
+            switch (transactionScopeOption)
             {
-                object[] attributes = property.GetCustomAttributes(typeof(PipelineEventAttribute), true);
-                if (attributes.Length > 0)
-                {
-                    PipelineEventAttribute attr = (PipelineEventAttribute)attributes[0];
-                    if (attr.TransactionScopeOption != TransactionScopeOption.Suppress)
-                    {
-                        pipelineScopeOption = System.Transactions.TransactionScopeOption.Required;
-                        break;
-                    }
-                }
+                case TransactionScopeOption.RequiredNew:
+                    return System.Transactions.TransactionScopeOption.RequiresNew;
+                case TransactionScopeOption.Suppress:
+                    return System.Transactions.TransactionScopeOption.Suppress;
+                default:
+                    return System.Transactions.TransactionScopeOption.Required;
+            }
+        }
+
+        private static System.Transactions.TransactionScopeOption TransactionRequirement(
+            IEnumerable<PropertyInfo> sortedProperties)
+        {
+            var pipelineScopeOption = System.Transactions.TransactionScopeOption.Suppress;
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            // makes it harder to understand if done as linq body.
+            foreach (var property in sortedProperties)
+            {
+                var attributes = property.GetCustomAttributes(typeof (PipelineEventAttribute), true);
+                if (attributes.Length <= 0) continue;
+                var attr = (PipelineEventAttribute) attributes[0];
+                if (attr.TransactionScopeOption == TransactionScopeOption.Suppress) continue;
+                pipelineScopeOption = System.Transactions.TransactionScopeOption.Required;
+                break;
             }
 
             return pipelineScopeOption;

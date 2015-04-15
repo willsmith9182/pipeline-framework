@@ -1,14 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Transactions;
-using Pipeline.Configuration;
+using Pipeline.EventArgs;
+using Pipeline.Support_Code;
 
 namespace Pipeline
 {

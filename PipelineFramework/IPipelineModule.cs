@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Configuration;
-using System.Linq;
-using System.Text;
 
 namespace Pipeline
 {
-    public interface IPipelineModule
+    public interface IPipelineModule<in T> where T : PipelineEvents
     {
-        void Initialize(PipelineEvents events, NameValueCollection parameters);
+        void Initialize(T events, NameValueCollection parameters);
     }
 }

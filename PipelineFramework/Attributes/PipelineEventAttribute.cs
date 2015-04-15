@@ -1,26 +1,18 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Pipeline.Support_Code;
 
-namespace Pipeline
+namespace Pipeline.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class PipelineEventAttribute : Attribute
     {
-        private int _Order = 0;
-        private TransactionScopeOption _TransactionScopeOption = TransactionScopeOption.Suppress;
-
-        public int Order
+        public PipelineEventAttribute()
         {
-            get { return _Order; }
-            set { _Order = value; }
+            Order = 0;
+            TransactionScopeOption = TransactionScopeOption.Suppress;
         }
 
-        public TransactionScopeOption TransactionScopeOption
-        {
-            get { return _TransactionScopeOption; }
-            set { _TransactionScopeOption = value; }
-        }
+        public int Order { get; private set; }
+        public TransactionScopeOption TransactionScopeOption { get; private set; }
     }
 }
