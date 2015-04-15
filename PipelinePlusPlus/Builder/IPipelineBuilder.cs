@@ -1,10 +1,60 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Pipeline;
+using Pipeline.Definition;
 using Pipeline.EventArgs;
 using Pipeline.Support_Code;
 
 namespace PipelinePlusPlus.Builder
 {
+    // the pipeline definition, 
+    // this is where events are registered
+    // a implementor of this platform will define this and the event order. 
+    public abstract class Pipeline<TContext>
+    {
+
+        protected TContext Context { get; private set; }
+
+        protected Pipeline()
+        {
+        }
+
+        internal void Registercontext(TContext context)
+        {
+            Context = context;
+        }
+    }
+
+    internal sealed class PipelineException : Exception
+    {
+        public PipelineException(string reason, string moduleName)
+            : base(string.Format("Pipeline cancelled by module: {0}. Module '{1}'.", reason, moduleName))
+        {
+
+        }
+        public PipelineException(string moduleName, Exception innerException)
+            : base(string.Format("ERROR when executing pipeline module '{0}'. pipeline will terminate.", moduleName), innerException)
+        {
+        }
+    }
+
+    public abstract class PipelineContext
+    {
+        private PipelineException _exception;
+
+        public void Cancel(string reason, Module executingModule)
+        {
+            _exception = new PipelineException(reason, executingModule.Type);
+        }
+
+        public void RegisterPipelineError(Exception e, Module executingModule)
+        {
+            _exception = new PipelineException(executingModule.Type, e);
+        }
+
+        public bool CancelExecution { get { return _exception == null; } }
+    }
 
     public interface IPipelineBuilder<TEvents, TContext>
         where TEvents : PipelineEvents, new()
@@ -139,10 +189,10 @@ namespace PipelinePlusPlus.Builder
         internal void Do(Action<object, PipelineModuleInitializingEventArgs> act)
         {
 
-            var b = PipelineBuilder.Create<string, string>("test").OnModuleInitialize(args =>
-            {
+            //var b = PipelineBuilder.Create<string, string>("test").OnModuleInitialize(args =>
+            //{
 
-            });
+            //});
         }
     }
 }
