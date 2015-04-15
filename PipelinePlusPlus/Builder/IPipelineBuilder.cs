@@ -56,47 +56,47 @@ namespace PipelinePlusPlus.Builder
         public bool CancelExecution { get { return _exception == null; } }
     }
 
-    public interface IPipelineBuilder<TEvents, TContext>
-        where TEvents : PipelineEvents, new()
+    public interface IPipelineBuilder<TPipeline, TContext>
+        where TPipeline : Pipeline<TContext>, new()
         where TContext : PipelineContext
     {
-        IPipelineBuilder<TEvents, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del);
-        IPipelineBuilder<TEvents, TContext> OnModuleInitialized(Action<object, PipelineModuleInitializedEventArgs> del);
-        IPipelineBuilder<TEvents, TContext> OnModuleInitialize(Action<PipelineModuleInitializingEventArgs> del);
-        IPipelineBuilder<TEvents, TContext> OnModuleInitialized(Action<PipelineModuleInitializedEventArgs> del);
+        IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del);
+        IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<object, PipelineModuleInitializedEventArgs> del);
+        IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<PipelineModuleInitializingEventArgs> del);
+        IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<PipelineModuleInitializedEventArgs> del);
 
-        IPipelineBuilder<TEvents, TContext> OnPipeLineStageExectue(Action<object, PipelineEventFiringEventArgs> del);
-        IPipelineBuilder<TEvents, TContext> OnPipeLineStageExectue(Action<PipelineEventFiringEventArgs> del);
-        IPipelineBuilder<TEvents, TContext> OnPipeLineStageExectued(Action<object, PipelineEventFiredEventArgs> del);
-        IPipelineBuilder<TEvents, TContext> OnPipeLineStageExectued(Action<PipelineEventFiredEventArgs> del);
+        IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectue(Action<object, PipelineEventFiringEventArgs> del);
+        IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectue(Action<PipelineEventFiringEventArgs> del);
+        IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectued(Action<object, PipelineEventFiredEventArgs> del);
+        IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectued(Action<PipelineEventFiredEventArgs> del);
 
     }
 
     public delegate void PipelineAction<in T>(T context) where T : PipelineContext;
 
-    public interface IPipeline<in TEvents, TContext>
-        where TEvents : PipelineEvents, new()
+    public interface IPipeline<in TPipeline, TContext>
+        where TPipeline : PipelineEvents, new()
         where TContext : PipelineContext
     {
         void Execute(PipelineAction<TContext> act, TContext context);
         void Execute(PipelineAction<TContext> pipelineEvent, TContext context, TransactionScopeOption transactionScope);
-        void Execute(TEvents pipelineEvents, TContext context);
+        void Execute(TPipeline pipelineEvents, TContext context);
     }
 
     public static class PipelineBuilder
     {
         // the name is the name of the pipeline in your config section. 
         // you can add modules to this section to dynamically load functionality into your pipeline. 
-        public static IPipelineBuilder<TEvents, TContext> Create<TEvents, TContext>(string name)
-            where TEvents : PipelineEvents, new()
+        public static IPipelineBuilder<TPipeline, TContext> Create<TPipeline, TContext>(string name)
+            where TPipeline : Pipeline<TContext>, new()
             where TContext : PipelineContext
         {
-            return new PipelineBuilder<TEvents, TContext>(name);
+            return new PipelineBuilder<TPipeline, TContext>(name);
         }
     }
 
-    public class PipelineBuilder<TEvents, TContext> : IPipelineBuilder<TEvents, TContext>
-        where TEvents : PipelineEvents, new()
+    public class PipelineBuilder<TPipeline, TContext> : IPipelineBuilder<TPipeline, TContext>
+        where TPipeline : Pipeline<TContext>, new()
         where TContext : PipelineContext
     {
         private readonly string _pipelineName;
@@ -115,25 +115,25 @@ namespace PipelinePlusPlus.Builder
 
         // internal methods do the work. 
         // more specific methods just pass to these. 
-        private IPipelineBuilder<TEvents, TContext> AddHandler(EventHandler<PipelineModuleInitializingEventArgs> del)
+        private IPipelineBuilder<TPipeline, TContext> AddHandler(EventHandler<PipelineModuleInitializingEventArgs> del)
         {
             _moduleInitalizing += del;
             return this;
         }
 
-        private IPipelineBuilder<TEvents, TContext> AddHandler(EventHandler<PipelineModuleInitializedEventArgs> del)
+        private IPipelineBuilder<TPipeline, TContext> AddHandler(EventHandler<PipelineModuleInitializedEventArgs> del)
         {
             _moduleInitalized += del;
             return this;
         }
 
-        private IPipelineBuilder<TEvents, TContext> AddHandler(EventHandler<PipelineEventFiredEventArgs> del)
+        private IPipelineBuilder<TPipeline, TContext> AddHandler(EventHandler<PipelineEventFiredEventArgs> del)
         {
             _pipelineStageExecuted += del;
             return this;
         }
 
-        private IPipelineBuilder<TEvents, TContext> AddHandler(EventHandler<PipelineEventFiringEventArgs> del)
+        private IPipelineBuilder<TPipeline, TContext> AddHandler(EventHandler<PipelineEventFiringEventArgs> del)
         {
             _pipelineStageExecuting += del;
             return this;
@@ -142,42 +142,42 @@ namespace PipelinePlusPlus.Builder
 
 
 
-        public IPipelineBuilder<TEvents, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del)
+        public IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del)
         {
             return AddHandler((o, ea) => del(o, ea));
         }
 
-        public IPipelineBuilder<TEvents, TContext> OnModuleInitialized(Action<object, PipelineModuleInitializedEventArgs> del)
+        public IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<object, PipelineModuleInitializedEventArgs> del)
         {
             return AddHandler((o, ea) => del(o, ea));
         }
 
-        public IPipelineBuilder<TEvents, TContext> OnModuleInitialize(Action<PipelineModuleInitializingEventArgs> del)
+        public IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<PipelineModuleInitializingEventArgs> del)
         {
             return AddHandler((o, ea) => del(ea));
         }
 
-        public IPipelineBuilder<TEvents, TContext> OnModuleInitialized(Action<PipelineModuleInitializedEventArgs> del)
+        public IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<PipelineModuleInitializedEventArgs> del)
         {
             return AddHandler((o, ea) => del(ea));
         }
 
-        public IPipelineBuilder<TEvents, TContext> OnPipeLineStageExectue(Action<object, PipelineEventFiringEventArgs> del)
+        public IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectue(Action<object, PipelineEventFiringEventArgs> del)
         {
             return AddHandler((o, e) => del(o, e));
         }
 
-        public IPipelineBuilder<TEvents, TContext> OnPipeLineStageExectue(Action<PipelineEventFiringEventArgs> del)
+        public IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectue(Action<PipelineEventFiringEventArgs> del)
         {
             return AddHandler((o, e) => del(e));
         }
 
-        public IPipelineBuilder<TEvents, TContext> OnPipeLineStageExectued(Action<object, PipelineEventFiredEventArgs> del)
+        public IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectued(Action<object, PipelineEventFiredEventArgs> del)
         {
             return AddHandler((o, e) => del(o, e));
         }
 
-        public IPipelineBuilder<TEvents, TContext> OnPipeLineStageExectued(Action<PipelineEventFiredEventArgs> del)
+        public IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectued(Action<PipelineEventFiredEventArgs> del)
         {
             return AddHandler((o, e) => del(e));
         }
