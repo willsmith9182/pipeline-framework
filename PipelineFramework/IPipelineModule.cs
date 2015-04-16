@@ -2,8 +2,8 @@ using System.Collections.Specialized;
 
 namespace Pipeline
 {
-    public interface IPipelineModule<in T> where T : PipelineEvents
+    public interface IPipelineModule<in TPipeline> where TPipeline : Pipeline
     {
-        void Initialize(T events, NameValueCollection parameters);
+        void Initialize(TPipeline pipeline, NameValueCollection parameters);
     }
 }

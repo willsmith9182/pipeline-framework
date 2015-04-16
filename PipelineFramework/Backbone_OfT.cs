@@ -114,7 +114,15 @@ namespace Pipeline
 
         protected Definition.Pipeline GetPipelineDefinition(string pipelineName)
         {
-            var pipelineElement = GetPipelineConfigurationElement(pipelineName);
+            var section = (PipelineFrameworkConfigurationSection)(ConfigurationManager.GetSection("pipelineFramework"));
+
+            var pipelineElement = section.Pipelines.GetByName(pipelineName);
+
+            if (pipelineElement == null)
+                throw new ConfigurationErrorsException(
+                    string.Format("Pipeline '{0}' is missing from the pipelineFramework configuration section.",
+                        pipelineName));
+            
             var pipeline = new Definition.Pipeline(pipelineElement.Name)
             {
                 InvokeAll = pipelineElement.InvokeAll

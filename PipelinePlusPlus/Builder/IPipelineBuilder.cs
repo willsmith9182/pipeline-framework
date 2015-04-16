@@ -1,198 +1,39 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Pipeline;
-using Pipeline.Definition;
-using Pipeline.EventArgs;
-using Pipeline.Support_Code;
+using PipelinePlusPlus.Core;
+using PipelinePlusPlus.EventArgs;
 
 namespace PipelinePlusPlus.Builder
 {
     // the pipeline definition, 
     // this is where events are registered
     // a implementor of this platform will define this and the event order. 
-    public abstract class Pipeline<TContext>
-    {
 
-        protected TContext Context { get; private set; }
-
-        protected Pipeline()
-        {
-        }
-
-        internal void Registercontext(TContext context)
-        {
-            Context = context;
-        }
-    }
-
-    internal sealed class PipelineException : Exception
-    {
-        public PipelineException(string reason, string moduleName)
-            : base(string.Format("Pipeline cancelled by module: {0}. Module '{1}'.", reason, moduleName))
-        {
-
-        }
-        public PipelineException(string moduleName, Exception innerException)
-            : base(string.Format("ERROR when executing pipeline module '{0}'. pipeline will terminate.", moduleName), innerException)
-        {
-        }
-    }
-
-    public abstract class PipelineContext
-    {
-        private PipelineException _exception;
-
-        public void Cancel(string reason, Module executingModule)
-        {
-            _exception = new PipelineException(reason, executingModule.Type);
-        }
-
-        public void RegisterPipelineError(Exception e, Module executingModule)
-        {
-            _exception = new PipelineException(executingModule.Type, e);
-        }
-
-        public bool CancelExecution { get { return _exception == null; } }
-    }
-
-    public interface IPipelineBuilder<TPipeline, TContext>
-        where TPipeline : Pipeline<TContext>, new()
+    public interface IPipelineBuilder<out TPipeline, in TContext>
+        where TPipeline : PipelineSteps<TContext>, new()
         where TContext : PipelineContext
     {
         IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del);
         IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<object, PipelineModuleInitializedEventArgs> del);
         IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<PipelineModuleInitializingEventArgs> del);
         IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<PipelineModuleInitializedEventArgs> del);
-
         IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectue(Action<object, PipelineEventFiringEventArgs> del);
         IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectue(Action<PipelineEventFiringEventArgs> del);
         IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectued(Action<object, PipelineEventFiredEventArgs> del);
         IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectued(Action<PipelineEventFiredEventArgs> del);
 
-    }
+        /// <summary>
+        ///     Adds a delegate to the pipeline that is called each time an error is encountered.
+        ///     allows the pipeline to be configured to ignore certain/all errors.
+        /// </summary>
+        /// <param name="del">
+        ///     a delegate that takes a PipelineException and returns a boolean to indicate if the pipeline should
+        ///     halt or carry on
+        /// </param>
+        /// <returns></returns>
+        IPipelineBuilder<TPipeline, TContext> OnPipelineError(Func<PipelineException, bool> del);
 
-    public delegate void PipelineAction<in T>(T context) where T : PipelineContext;
-
-    public interface IPipeline<in TPipeline, TContext>
-        where TPipeline : PipelineEvents, new()
-        where TContext : PipelineContext
-    {
-        void Execute(PipelineAction<TContext> act, TContext context);
-        void Execute(PipelineAction<TContext> pipelineEvent, TContext context, TransactionScopeOption transactionScope);
-        void Execute(TPipeline pipelineEvents, TContext context);
-    }
-
-    public static class PipelineBuilder
-    {
-        // the name is the name of the pipeline in your config section. 
-        // you can add modules to this section to dynamically load functionality into your pipeline. 
-        public static IPipelineBuilder<TPipeline, TContext> Create<TPipeline, TContext>(string name)
-            where TPipeline : Pipeline<TContext>, new()
-            where TContext : PipelineContext
-        {
-            return new PipelineBuilder<TPipeline, TContext>(name);
-        }
-    }
-
-    public class PipelineBuilder<TPipeline, TContext> : IPipelineBuilder<TPipeline, TContext>
-        where TPipeline : Pipeline<TContext>, new()
-        where TContext : PipelineContext
-    {
-        private readonly string _pipelineName;
-        private EventHandler<PipelineModuleInitializingEventArgs> _moduleInitalizing;
-        private EventHandler<PipelineModuleInitializedEventArgs> _moduleInitalized;
-        private EventHandler<PipelineEventFiredEventArgs> _pipelineStageExecuted;
-        private EventHandler<PipelineEventFiringEventArgs> _pipelineStageExecuting;
-
-
-        internal PipelineBuilder(string name)
-        {
-            _pipelineName = name;
-        }
-
-
-
-        // internal methods do the work. 
-        // more specific methods just pass to these. 
-        private IPipelineBuilder<TPipeline, TContext> AddHandler(EventHandler<PipelineModuleInitializingEventArgs> del)
-        {
-            _moduleInitalizing += del;
-            return this;
-        }
-
-        private IPipelineBuilder<TPipeline, TContext> AddHandler(EventHandler<PipelineModuleInitializedEventArgs> del)
-        {
-            _moduleInitalized += del;
-            return this;
-        }
-
-        private IPipelineBuilder<TPipeline, TContext> AddHandler(EventHandler<PipelineEventFiredEventArgs> del)
-        {
-            _pipelineStageExecuted += del;
-            return this;
-        }
-
-        private IPipelineBuilder<TPipeline, TContext> AddHandler(EventHandler<PipelineEventFiringEventArgs> del)
-        {
-            _pipelineStageExecuting += del;
-            return this;
-        }
-
-
-
-
-        public IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del)
-        {
-            return AddHandler((o, ea) => del(o, ea));
-        }
-
-        public IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<object, PipelineModuleInitializedEventArgs> del)
-        {
-            return AddHandler((o, ea) => del(o, ea));
-        }
-
-        public IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<PipelineModuleInitializingEventArgs> del)
-        {
-            return AddHandler((o, ea) => del(ea));
-        }
-
-        public IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<PipelineModuleInitializedEventArgs> del)
-        {
-            return AddHandler((o, ea) => del(ea));
-        }
-
-        public IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectue(Action<object, PipelineEventFiringEventArgs> del)
-        {
-            return AddHandler((o, e) => del(o, e));
-        }
-
-        public IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectue(Action<PipelineEventFiringEventArgs> del)
-        {
-            return AddHandler((o, e) => del(e));
-        }
-
-        public IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectued(Action<object, PipelineEventFiredEventArgs> del)
-        {
-            return AddHandler((o, e) => del(o, e));
-        }
-
-        public IPipelineBuilder<TPipeline, TContext> OnPipeLineStageExectued(Action<PipelineEventFiredEventArgs> del)
-        {
-            return AddHandler((o, e) => del(e));
-        }
-    }
-
-    internal class thing
-    {
-
-        internal void Do(Action<object, PipelineModuleInitializingEventArgs> act)
-        {
-
-            //var b = PipelineBuilder.Create<string, string>("test").OnModuleInitialize(args =>
-            //{
-
-            //});
-        }
+        IPipelineBuilder<TPipeline, TContext> RegisterModule<T>(T module) where T : IPipelineModule<TPipeline>;
+        IPipelineBuilder<TPipeline, TContext> RegisterModule<T>() where T : IPipelineModule<TPipeline>, new();
+        IPipeline<TContext> Make();
     }
 }

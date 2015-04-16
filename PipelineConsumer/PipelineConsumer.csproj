@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BD234F0C-B458-4C7A-B0B6-CD4E69FDA1C8}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{A3AD41C1-C389-46F1-875D-809528E22C99}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PipelinePlusPlus</RootNamespace>
-    <AssemblyName>PipelinePlusPlus</AssemblyName>
+    <RootNamespace>PipelineConsumer</RootNamespace>
+    <AssemblyName>PipelineConsumer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,7 +33,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
@@ -41,32 +42,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\PipelineStepAttribute.cs" />
-    <Compile Include="Configuration\PipelineElement.cs" />
-    <Compile Include="Configuration\PipelineElementCollection.cs" />
-    <Compile Include="Configuration\PipelineFrameworkConfigurationSection.cs" />
-    <Compile Include="Core\IPipeline.cs" />
-    <Compile Include="Builder\IPipelineBuilder.cs" />
-    <Compile Include="Core\IPipelineModule.cs" />
-    <Compile Include="Core\Pipeline.cs" />
-    <Compile Include="Core\PipelineSteps.cs" />
-    <Compile Include="Core\PipelineAction.cs" />
-    <Compile Include="Builder\PipelineBuilder.cs" />
-    <Compile Include="Core\PipelineContext.cs" />
-    <Compile Include="Core\PipelineException.cs" />
-    <Compile Include="Definition\ModuleConfig.cs" />
-    <Compile Include="Definition\ModulesConfig.cs" />
-    <Compile Include="Definition\PipelineConfig.cs" />
-    <Compile Include="EventArgs\PipelineCancelEventArgsBase.cs" />
-    <Compile Include="EventArgs\PipelineEventArgsBase.cs" />
-    <Compile Include="EventArgs\PipelineEventFiredEventArgs.cs" />
-    <Compile Include="EventArgs\PipelineEventFiringEventArgs.cs" />
-    <Compile Include="EventArgs\PipelineModuleInitializedEventArgs.cs" />
-    <Compile Include="EventArgs\PipelineModuleInitializingEventArgs.cs" />
+    <Compile Include="Pipeline\Modules\ModuleForStep1.cs" />
+    <Compile Include="Pipeline\Modules\ModuleForStep2.cs" />
+    <Compile Include="Pipeline\Modules\ModuleForStep3.cs" />
+    <Compile Include="Pipeline\Modules\ModuleNotImplemented.cs" />
+    <Compile Include="Pipeline\Modules\ModuleThatWillBreak.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Util\PipelineExtensions.cs" />
-    <Compile Include="Util\PipelineDefninition.cs" />
-    <Compile Include="Util\PipelineStepDefinintion.cs" />
+    <Compile Include="Pipeline\TestContext.cs" />
+    <Compile Include="Pipeline\TestPipeline.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PipelinePlusPlus\PipelinePlusPlus.csproj">
+      <Project>{BD234F0C-B458-4C7A-B0B6-CD4E69FDA1C8}</Project>
+      <Name>PipelinePlusPlus</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
