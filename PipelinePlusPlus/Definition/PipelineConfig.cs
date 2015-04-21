@@ -1,26 +1,39 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using PipelinePlusPlus.Configuration;
+using PipelinePlusPlus.Core;
 
 namespace PipelinePlusPlus.Definition
 {
+    public static class ConfigExtensions
+    {
+        public static PipelineFrameworkConfigurationSection GetPipelineFrameworkConfiguration(this System.Configuration.Configuration config)
+        {
+            return config.GetSection("pipeliner") as PipelineFrameworkConfigurationSection;
+        }
+    }
+
     public class PipelineConfig
     {
-        public PipelineConfig(string name)
+        public PipelineConfig(string name, Func<System.Configuration.Configuration> getConfig)
         {
-            Modules = new ModulesConfig();
             Name = name;
+            Modules = new ModulesConfig();
 
-            var section = (PipelineFrameworkConfigurationSection) (ConfigurationManager.GetSection("pipelineFramework"));
+            var config = getConfig();
 
-            // if there is no config section for this pipeline, not to worry. 
-            // set up element and don't load any modules from configs. 
-            if (section == null) return;
+            var section = config.GetPipelineFrameworkConfiguration();
+
+            //if there is no config section for this pipeline, not to worry. 
+            //set up element and don't load any modules from configs. 
+            if (section == null) throw new PipelineConfigException("Unable to load pipeliner config section, please check your app/web.config");
 
             var pipelineElement = section.Pipelines.GetByName(name);
 
-            // if there is no config section for this pipeline, not to worry. 
-            // set up element and don't load any modules from configs. 
-            if (pipelineElement == null) return;
+            //if there is no config section for this pipeline, not to worry. 
+            //set up element and don't load any modules from configs. 
+            if (pipelineElement == null) throw new PipelineConfigException(string.Format("Unable to load config for pipeline '{0}', please check your app/web.config", name));
+
 
 
             foreach (ProviderSettings item in pipelineElement.Modules)

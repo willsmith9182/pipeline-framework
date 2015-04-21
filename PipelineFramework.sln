@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipelinePlusPlus", "Pipelin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipelineConsumer", "PipelineConsumer\PipelineConsumer.csproj", "{A3AD41C1-C389-46F1-875D-809528E22C99}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipelineFramework.Tests", "PipelineFramework.Tests\PipelineFramework.Tests.csproj", "{2639B2FD-FF09-442C-A217-8E25EE378F67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{A3AD41C1-C389-46F1-875D-809528E22C99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3AD41C1-C389-46F1-875D-809528E22C99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3AD41C1-C389-46F1-875D-809528E22C99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2639B2FD-FF09-442C-A217-8E25EE378F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2639B2FD-FF09-442C-A217-8E25EE378F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2639B2FD-FF09-442C-A217-8E25EE378F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2639B2FD-FF09-442C-A217-8E25EE378F67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

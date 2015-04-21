@@ -7,7 +7,7 @@ namespace PipelinePlusPlus.Configuration
         [ConfigurationProperty("pipelines")]
         public PipelineElementCollection Pipelines
         {
-            get { return (PipelineElementCollection) base["pipelines"]; }
+            get { return (PipelineElementCollection)base["pipelines"]; }
         }
     }
 }

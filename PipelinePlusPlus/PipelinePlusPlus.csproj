@@ -49,6 +49,7 @@
     <Compile Include="Builder\IPipelineBuilder.cs" />
     <Compile Include="Core\IPipelineModule.cs" />
     <Compile Include="Core\Pipeline.cs" />
+    <Compile Include="Core\PipelineConfigException.cs" />
     <Compile Include="Core\PipelineSteps.cs" />
     <Compile Include="Core\PipelineAction.cs" />
     <Compile Include="Builder\PipelineBuilder.cs" />

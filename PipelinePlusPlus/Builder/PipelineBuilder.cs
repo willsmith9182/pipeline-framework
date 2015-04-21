@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using PipelinePlusPlus.Core;
 using PipelinePlusPlus.Definition;
 using PipelinePlusPlus.EventArgs;
@@ -18,9 +19,11 @@ namespace PipelinePlusPlus.Builder
         private Func<PipelineException, bool> _onError = e => true;
         private EventHandler<PipelineEventFiredEventArgs> _pipelineStageExecuted;
         private EventHandler<PipelineEventFiringEventArgs> _pipelineStageExecuting;
+        private readonly Func<System.Configuration.Configuration> _getConfig;
 
-        internal PipelineBuilder()
+        internal PipelineBuilder(Func<System.Configuration.Configuration> getConfig)
         {
+            _getConfig = getConfig;
             _pipelineSteps = new TPipeline();
         }
 
@@ -88,7 +91,7 @@ namespace PipelinePlusPlus.Builder
 
         public IPipeline<TContext> Make()
         {
-            var pipelineConfig = new PipelineConfig(_pipelineSteps.PipelineName);
+            var pipelineConfig = new PipelineConfig(_pipelineSteps.PipelineName, _getConfig);
 
             // loop through dynamically loaded modules and create instances of each
             foreach (var module in pipelineConfig.Modules)
@@ -184,11 +187,11 @@ namespace PipelinePlusPlus.Builder
 
     public static class PipelineBuilder
     {
-        public static IPipelineBuilder<TPipeline, TContext> CreatePipeline<TPipeline, TContext>()
+        public static IPipelineBuilder<TPipeline, TContext> CreatePipeline<TPipeline, TContext>(Func<System.Configuration.Configuration> getConfig)
             where TPipeline : PipelineSteps<TContext>, new()
             where TContext : PipelineContext
         {
-            return new PipelineBuilder<TPipeline, TContext>();
+            return new PipelineBuilder<TPipeline, TContext>(getConfig);
         }
     }
 }

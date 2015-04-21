@@ -10,7 +10,7 @@ namespace PipelineConsumer
     {
         static void Main(string[] args)
         {
-            var b = PipelineBuilder.CreatePipeline<TestPipeline, TestContext>()
+            var b = PipelineBuilder.CreatePipeline<TestPipeline, TestContext>(() => null)
                 .OnModuleInitialize(a => { Console.WriteLine("initializing module: {0}", a.ModuleName); })
                 .OnModuleInitialized(
                     a => { Console.WriteLine("module initialized and registered: {0}", a.ModuleName); })
