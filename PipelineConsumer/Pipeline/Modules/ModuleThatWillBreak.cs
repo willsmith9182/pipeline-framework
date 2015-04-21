@@ -8,11 +8,11 @@ namespace PipelineConsumer.Pipeline.Modules
     {
         public void RegisterModuleWithPipeline(TestPipeline pipeline, NameValueCollection parameters = null)
         {
-            pipeline.Step2 += cxt =>
-            {
-                Console.WriteLine("Breaking module running at Step2, time to throw an exception");
-                cxt.RegisterPipelineError(new Exception("Something when bang."));
-            };
+            //pipeline.Step2 += cxt =>
+            //{
+            //    Console.WriteLine("Breaking module running at Step2, time to throw an exception");
+            //    cxt.RegisterPipelineError(new Exception("Something when bang."));
+            //};
         }
     }
 }

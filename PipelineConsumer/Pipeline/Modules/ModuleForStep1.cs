@@ -12,7 +12,7 @@ namespace PipelineConsumer.Pipeline.Modules
             {
                 Console.WriteLine("Step one has been fired");
                 
-                cxt.Cancel("string");
+               // cxt.Cancel("string");
             };
         }
     }
