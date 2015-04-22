@@ -90,6 +90,9 @@
     <Content Include="TestData\Config\BuilderConfigNoModules.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestData\Config\ConfigWithKnownModule.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PipelinePlusPlus\PipelinePlusPlus.csproj">

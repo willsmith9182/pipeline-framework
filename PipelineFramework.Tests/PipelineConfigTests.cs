@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 using PipelinePlusPlus.Core;
 using PipelinePlusPlus.Definition;
 
@@ -40,7 +41,7 @@ namespace PipelineFramework.Tests
             // Assert
             Assert.That(ex.Message, Is.EqualTo(string.Format("Unable to load config for pipeline '{0}', please check your app/web.config", TestUtils.PipelineNameForTest)));
         }
-        
+
 
         [Test]
         public void WhenConfigHasInvalidXml_ShouldNotLoadAnyConfig()
@@ -82,6 +83,24 @@ namespace PipelineFramework.Tests
 
             // Assert
             Assert.That(sut.Modules.Count, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void WhenConfigWithKnownModule_ShouldHaveKnownModuleLoaded()
+        {
+            // Arrange
+            var config = TestUtils.GenerateConfigFunc("ConfigWithKnownModule");
+
+            var expected = new ModuleConfig("KnownModule", "KnownNamespace.KnownModule, KnownAssembly");
+
+            // Act - things happen on construction
+            var sut = new PipelineConfig(TestUtils.PipelineNameForTest, config);
+
+            // Assert
+            Assert.That(sut.Modules.Count, Is.EqualTo(1));
+            Assert.That(sut.Modules.First(), Is.EqualTo(expected));
+
+
         }
     }
 }

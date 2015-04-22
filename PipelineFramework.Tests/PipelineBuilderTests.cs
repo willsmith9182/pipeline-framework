@@ -6,6 +6,8 @@ namespace PipelineFramework.Tests
     public class PipelineBuilderTests
     {
         [Test]
-        public void Should
+        public void Should()
+        {
+        }
     }
 }

@@ -20,7 +20,7 @@ namespace PipelineFramework.Tests
         {
             var configMap = new ExeConfigurationFileMap
             {
-                ExeConfigFilename = string.Format("TestConfigs\\{0}.config", configName)
+                ExeConfigFilename = string.Format("TestData\\Config\\{0}.config", configName)
             };
 
             return () => ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
