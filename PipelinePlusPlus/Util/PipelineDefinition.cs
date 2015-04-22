@@ -1,21 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Transactions;
 using PipelinePlusPlus.Core;
 
 namespace PipelinePlusPlus.Util
 {
-    public class PipelineDefninition<TContext> where TContext : PipelineContext
+    public class PipelineDefinition<TContext> where TContext : PipelineContext
     {
-        internal PipelineDefninition(IList<PipelineStepDefinintion<TContext>> actions,
+        internal PipelineDefinition(IEnumerable<IPipelineStepDefinintion<TContext>> actions,
             TransactionScopeOption pipelineScopeOption, string pipelineName)
         {
-            Actions = new Collection<PipelineStepDefinintion<TContext>>(actions);
+            Actions = new ReadOnlyCollection<IPipelineStepDefinintion<TContext>>(actions.ToList());
             PipelineScopeOption = pipelineScopeOption;
             PipelineName = pipelineName;
         }
 
-        public IReadOnlyCollection<PipelineStepDefinintion<TContext>> Actions { get; private set; }
+        public IReadOnlyCollection<IPipelineStepDefinintion<TContext>> Actions { get; private set; }
         public TransactionScopeOption PipelineScopeOption { get; private set; }
         public string PipelineName { get; private set; }
     }

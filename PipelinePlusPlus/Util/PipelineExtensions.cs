@@ -18,29 +18,29 @@ namespace PipelinePlusPlus.Util
                 ? TransactionScopeOption.Required
                 : TransactionScopeOption.Suppress;
         }
-
+        
         private static PipelineStepDefinintion<TContext> CreateDefinition<TContext>(this PropertyInfo prop,
-            PipelineSteps<TContext> steps) where TContext : PipelineContext
+            PipelineSteps steps) where TContext : PipelineContext
         {
-            var attr = prop.GetCustomAttributes(typeof (PipelineStepAttribute), true)
+            var attr = prop.GetCustomAttributes(typeof(PipelineStepAttribute), true)
                 .Cast<PipelineStepAttribute>()
                 .FirstOrDefault();
-            var instance = (PipelineAction<TContext>) prop.GetValue(steps, null);
+            var instance = (PipelineStep<TContext>)prop.GetValue(steps, null);
 
-            return new PipelineStepDefinintion<TContext>(prop, attr, instance);
+            return new PipelineStepDefinintion<TContext>(prop.Name, attr, instance);
         }
 
-        public static PipelineDefninition<TContext> ResolveActions<TContext>(this PipelineSteps<TContext> pipelineSteps)
+        public static PipelineDefinition<TContext> ResolveActions<TContext>(this PipelineSteps pipelineSteps)
             where TContext : PipelineContext
         {
-            var properties = pipelineSteps.GetType().GetProperties().Where(p => p.PropertyType == typeof(PipelineAction<TContext>));
+            var properties = pipelineSteps.GetType().GetProperties().Where(p => p.PropertyType == typeof(PipelineStep<TContext>));
 
-            var sortedProperties = properties.Select(p => CreateDefinition(p, pipelineSteps)).ToList();
+            var sortedProperties = properties.Select(p => CreateDefinition<TContext>(p, pipelineSteps)).ToList();
             sortedProperties.Sort(new PipelineStepComparer<TContext>());
 
             var pipelineScopeOption = sortedProperties.RequiredTransactionScope();
 
-            return new PipelineDefninition<TContext>(sortedProperties, pipelineScopeOption, pipelineSteps.PipelineName);
+            return new PipelineDefinition<TContext>(sortedProperties, pipelineScopeOption, pipelineSteps.PipelineName);
         }
 
         internal class PipelineStepComparer<TContext> : IComparer<PipelineStepDefinintion<TContext>>

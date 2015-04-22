@@ -4,12 +4,6 @@ namespace PipelinePlusPlus.Definition
 {
     public class ModuleConfig
     {
-        public ModuleConfig(string name, string type)
-        {
-            Name = name;
-            Type = type;
-        }
-
         public ModuleConfig(string name, string type, NameValueCollection parameters)
         {
             Name = name;

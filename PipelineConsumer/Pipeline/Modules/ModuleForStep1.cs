@@ -4,16 +4,21 @@ using PipelinePlusPlus.Core;
 
 namespace PipelineConsumer.Pipeline.Modules
 {
-    internal class ModuleForStep1 : IPipelineModule<TestPipeline>
+    internal class ModuleForStep1 : PipelineModule<TestPipeline, TestContext>
     {
-        public void RegisterModuleWithPipeline(TestPipeline pipeline, NameValueCollection parameters = null)
+        public override void Register(TestPipeline pipeline)
         {
-            pipeline.Step1 += cxt =>
-            {
-                Console.WriteLine("Step one has been fired");
-                
-               // cxt.Cancel("string");
-            };
+            pipeline.Step1.RegisterModule(this);
+        }
+
+        public override void ExecuteModule(TestContext cxt)
+        {
+            Console.WriteLine("Step one has been fired");
+        }
+
+        public ModuleForStep1()
+            : base("ModuleForStep1")
+        {
         }
     }
 }

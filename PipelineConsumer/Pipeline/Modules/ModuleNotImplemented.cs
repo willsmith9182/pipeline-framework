@@ -1,18 +1,24 @@
 ﻿using System;
-using System.Collections.Specialized;
 using PipelinePlusPlus.Core;
 
 namespace PipelineConsumer.Pipeline.Modules
 {
-    internal class ModuleNotImplemented : IPipelineModule<TestPipeline>
+    internal class ModuleNotImplemented : PipelineModule<TestPipeline, TestContext>
     {
-        public void RegisterModuleWithPipeline(TestPipeline pipeline, NameValueCollection parameters = null)
+        public ModuleNotImplemented()
+            : base("ModuleNotImplemented")
         {
-            pipeline.Step2 += cxt =>
-            {
-                Console.WriteLine("NotImplemented module running at Step2, time to throw an exception");
-                cxt.RegisterPipelineError(new NotImplementedException("i'm not implemneted, i should stop execution"));
-            };
+        }
+
+        public override void Register(TestPipeline pipeline)
+        {
+            pipeline.Step2.RegisterModule(this);
+        }
+
+        public override void ExecuteModule(TestContext cxt)
+        {
+            Console.WriteLine("NotImplemented module running at Step2, time to throw an exception");
+            throw new NotImplementedException("i'm not implemneted, i should stop execution");
         }
     }
 }

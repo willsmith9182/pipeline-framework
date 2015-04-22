@@ -4,15 +4,20 @@ using PipelinePlusPlus.Core;
 
 namespace PipelineConsumer.Pipeline.Modules
 {
-    internal class ModuleThatWillBreak : IPipelineModule<TestPipeline>
+    internal class ModuleThatWillBreak : PipelineModule<TestPipeline,TestContext>
     {
-        public void RegisterModuleWithPipeline(TestPipeline pipeline, NameValueCollection parameters = null)
+        public ModuleThatWillBreak() : base("ModuleThatWillBreak")
         {
-            //pipeline.Step2 += cxt =>
-            //{
-            //    Console.WriteLine("Breaking module running at Step2, time to throw an exception");
-            //    cxt.RegisterPipelineError(new Exception("Something when bang."));
-            //};
+        }
+
+        public override void Register(TestPipeline pipeline)
+        {
+            
+        }
+
+        public override void ExecuteModule(TestContext cxt)
+        {
+            
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using PipelineConsumer.Pipeline;
 using PipelineConsumer.Pipeline.Modules;
@@ -10,7 +11,7 @@ namespace PipelineConsumer
     {
         static void Main(string[] args)
         {
-            var b = PipelineBuilder.CreatePipeline<TestPipeline, TestContext>(() => null)
+            var b = PipelineBuilder.CreatePipeline<TestPipeline, TestContext>()
                 .OnModuleInitialize(a => { Console.WriteLine("initializing module: {0}", a.ModuleName); })
                 .OnModuleInitialized(
                     a => { Console.WriteLine("module initialized and registered: {0}", a.ModuleName); })
@@ -24,7 +25,7 @@ namespace PipelineConsumer
                 .RegisterModule<ModuleForStep3>()
                 .RegisterModule<ModuleNotImplemented>()
                 .RegisterModule<ModuleThatWillBreak>()
-                .Make();
+                .Make(() => ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None));
 
             var cxt = new TestContext();
 

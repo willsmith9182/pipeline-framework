@@ -7,6 +7,11 @@ namespace PipelinePlusPlus.EventArgs
         {
         }
 
-        public bool Cancel { get; set; }
+        public bool Cancel { get; private set; }
+
+        public void CancelAction()
+        {
+            if (!Cancel) Cancel = true;
+        }
     }
 }

@@ -8,8 +8,8 @@ namespace PipelinePlusPlus.Builder
     // this is where events are registered
     // a implementor of this platform will define this and the event order. 
 
-    public interface IPipelineBuilder<out TPipeline, in TContext>
-        where TPipeline : PipelineSteps<TContext>, new()
+    public interface IPipelineBuilder<TPipeline, TContext>
+        where TPipeline : PipelineSteps, new()
         where TContext : PipelineContext
     {
         IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del);
@@ -32,8 +32,8 @@ namespace PipelinePlusPlus.Builder
         /// <returns></returns>
         IPipelineBuilder<TPipeline, TContext> OnPipelineError(Func<PipelineException, bool> del);
 
-        IPipelineBuilder<TPipeline, TContext> RegisterModule<T>(T module) where T : IPipelineModule<TPipeline>;
-        IPipelineBuilder<TPipeline, TContext> RegisterModule<T>() where T : IPipelineModule<TPipeline>, new();
-        IPipeline<TContext> Make();
+        IPipelineBuilder<TPipeline, TContext> RegisterModule<T>(T module) where T : PipelineModule<TPipeline, TContext>;
+        IPipelineBuilder<TPipeline, TContext> RegisterModule<T>() where T : PipelineModule<TPipeline, TContext>, new();
+        IPipeline<TContext> Make(Func<System.Configuration.Configuration> getConfig);
     }
 }

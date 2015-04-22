@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Specialized;
+using System.Linq;
 using NUnit.Framework;
 using PipelinePlusPlus.Core;
 using PipelinePlusPlus.Definition;
@@ -9,20 +10,21 @@ namespace PipelineFramework.Tests
     public class PipelineConfigTests
     {
         [Test]
-        public void WhenConfigSectionDoesNotExist_ShouldThrowException()
+        public void WhenConfigSectionDoesNotExist_ShouldNotThrowException()
         {
             // Arrange
             var config = TestUtils.GenerateConfigFunc("ConfigWithNoConfigSectionForPipeliner");
 
-
+            PipelineConfig<TestContext> sut = null;
             // Act - things happen on construction
-            var ex = Assert.Throws<PipelineConfigException>(() =>
+            Assert.DoesNotThrow(() =>
             {
-                var sut = new PipelineConfig(TestUtils.PipelineNameForTest, config);
+                sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
             });
 
             // Assert
-            Assert.That(ex.Message, Is.EqualTo("Unable to load pipeliner config section, please check your app/web.config"));
+            Assert.That(sut, Is.Not.Null);
+            Assert.That(sut.Modules.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -35,7 +37,7 @@ namespace PipelineFramework.Tests
             // Act - things happen on construction
             var ex = Assert.Throws<PipelineConfigException>(() =>
             {
-                var sut = new PipelineConfig(TestUtils.PipelineNameForTest, config);
+                var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
             });
 
             // Assert
@@ -52,7 +54,7 @@ namespace PipelineFramework.Tests
             // Act - things happen on construction
             var ex = Assert.Throws<PipelineConfigException>(() =>
             {
-                var sut = new PipelineConfig(TestUtils.PipelineNameForTest, config);
+                var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
             });
 
             // Assert
@@ -66,7 +68,7 @@ namespace PipelineFramework.Tests
             var config = TestUtils.GenerateConfigFunc("ConfigWithOneModule");
 
             // Act - things happen on construction
-            var sut = new PipelineConfig(TestUtils.PipelineNameForTest, config);
+            var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
 
             // Assert
             Assert.That(sut.Modules.Count, Is.EqualTo(1));
@@ -79,7 +81,7 @@ namespace PipelineFramework.Tests
             var config = TestUtils.GenerateConfigFunc("ConfigWithFiveModules");
 
             // Act - things happen on construction
-            var sut = new PipelineConfig(TestUtils.PipelineNameForTest, config);
+            var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
 
             // Assert
             Assert.That(sut.Modules.Count, Is.EqualTo(5));
@@ -91,14 +93,18 @@ namespace PipelineFramework.Tests
             // Arrange
             var config = TestUtils.GenerateConfigFunc("ConfigWithKnownModule");
 
-            var expected = new ModuleConfig("KnownModule", "KnownNamespace.KnownModule, KnownAssembly");
+            var expected = new ModuleConfig("KnownModule", "KnownNamespace.KnownModule, KnownAssembly", new NameValueCollection());
 
             // Act - things happen on construction
-            var sut = new PipelineConfig(TestUtils.PipelineNameForTest, config);
+            var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
 
             // Assert
             Assert.That(sut.Modules.Count, Is.EqualTo(1));
-            Assert.That(sut.Modules.First(), Is.EqualTo(expected));
+            var module = sut.Modules.First();
+
+            Assert.That(module.Name, Is.EqualTo(expected.Name));
+            Assert.That(module.Type, Is.EqualTo(expected.Type));
+            Assert.That(module.Parameters, Is.EqualTo(expected.Parameters));
 
 
         }

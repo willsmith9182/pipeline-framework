@@ -2,7 +2,7 @@
 
 namespace PipelineFramework.Tests.TestData.Definition
 {
-    public class TestPipeline : PipelineSteps<TestPIpelineContext>
+    public class TestPipeline : PipelineSteps
     {
         public TestPipeline()
             : base(TestUtils.PipelineNameForTest)

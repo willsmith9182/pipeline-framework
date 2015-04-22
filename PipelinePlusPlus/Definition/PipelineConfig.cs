@@ -13,7 +13,7 @@ namespace PipelinePlusPlus.Definition
         }
     }
 
-    public class PipelineConfig
+    public class PipelineConfig<TContext>
     {
         public PipelineConfig(string name, Func<System.Configuration.Configuration> getConfig)
         {
@@ -26,7 +26,7 @@ namespace PipelinePlusPlus.Definition
 
             //if there is no config section for this pipeline, not to worry. 
             //set up element and don't load any modules from configs. 
-            if (section == null) throw new PipelineConfigException("Unable to load pipeliner config section, please check your app/web.config");
+            if (section == null) return;
 
             var pipelineElement = section.Pipelines.GetByName(name);
 

@@ -7,7 +7,7 @@ namespace PipelinePlusPlus.Definition
     {
         public void Add(string name, string type)
         {
-            Add(new ModuleConfig(name, type));
+            Add(name, type, new NameValueCollection());
         }
 
         public void Add(string name, string type, NameValueCollection parameters)

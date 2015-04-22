@@ -28,60 +28,29 @@ namespace PipelinePlusPlus.Core
     internal class Pipeline<TContext> : IPipeline<TContext>
         where TContext : PipelineContext
     {
-        public Pipeline(PipelineDefninition<TContext> def)
+        public Pipeline(PipelineExecutionContext<TContext> executionContext)
         {
-            PipelineDefinintion = def;
-            Actions = new Queue<PipelineStepDefinintion<TContext>>(def.Actions);
+            ExecutionContext = executionContext;
         }
 
-        internal EventHandler<PipelineEventFiredEventArgs> PipelineStageExecuted { get; set; }
-        internal EventHandler<PipelineEventFiringEventArgs> PipelineStageExecuting { get; set; }
-        internal Func<PipelineException, bool> OnError { get; set; }
-        internal Queue<PipelineStepDefinintion<TContext>> Actions { get; private set; }
-        internal PipelineDefninition<TContext> PipelineDefinintion { get; private set; }
-
+        public PipelineExecutionContext<TContext> ExecutionContext { get; private set; }
+        
         public PipelineResult Execute(TContext context)
         {
-            context.OnException = OnError;
-            using (var pipelineScope = new TransactionScope(PipelineDefinintion.PipelineScopeOption))
-            {
-                while (Actions.Count > 0)
-                {
-                    var pipelineAction = Actions.Dequeue();
-                    if (PipelineStageExecuting != null)
-                    {
-                        var executingArgs = new PipelineEventFiringEventArgs(PipelineDefinintion.PipelineName,
-                            pipelineAction.ActionName);
-                        PipelineStageExecuting(this, executingArgs);
-                        if (executingArgs.Cancel) continue;
-                    }
-                    using (var actionScope = new TransactionScope())
-                    {
-                        foreach (
-                            var handler in pipelineAction.Action.GetInvocationList().OfType<PipelineAction<TContext>>())
-                        {
-                            try
-                            {
-                                handler(context);
-                            }
-                            catch (Exception e)
-                            {
-                                var pipeException = new PipelineException("", e);
-                                context.RegisterPipelineError(pipeException);
-                            }
+            // set the context for this execution
+            // resets the execution context
+            ExecutionContext.StepContext = context;
 
-                            if (context.CancelExecution) return new PipelineResult(false, context.Exceptions);
-                        }
-                        actionScope.Complete();
-                    }
-                    if (PipelineStageExecuted == null) continue;
-                    var executedArgs = new PipelineEventFiredEventArgs(PipelineDefinintion.PipelineName,
-                        pipelineAction.ActionName);
-                    PipelineStageExecuted(this, executedArgs);
+            using (var pipelineScope = new TransactionScope(ExecutionContext.PipelineScope))
+            {
+                foreach (var step in ExecutionContext.Steps)
+                {
+                    step.Execute(ExecutionContext);
+                    if (ExecutionContext.CancelExecution) return new PipelineResult(false, ExecutionContext.Exceptions);
                 }
                 pipelineScope.Complete();
             }
-            return new PipelineResult(true, context.Exceptions);
+            return new PipelineResult(true, ExecutionContext.Exceptions);
         }
     }
 }
