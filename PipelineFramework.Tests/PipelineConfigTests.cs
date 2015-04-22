@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
 using System.Linq;
 using NUnit.Framework;
 using PipelinePlusPlus.Core;
@@ -107,6 +108,28 @@ namespace PipelineFramework.Tests
             Assert.That(module.Parameters, Is.EqualTo(expected.Parameters));
 
 
+        }
+
+        [Test]
+        public void WhenUnexpectedException_ShouldWrapInConfigException()
+        {
+            var thrownException = new NotImplementedException("Simulated Exception");
+
+            // Arrange - broken config retrieve - unexpected exception simulation. 
+            Func<System.Configuration.Configuration> config = () =>
+            {
+                throw thrownException;
+            };
+
+            // Act - things happen on construction
+            var ex = Assert.Throws<PipelineConfigException>(() =>
+            {
+                var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+            });
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Unexpected error encountered, unable to process config"));
+            Assert.That(ex.InnerException.Message, Is.EqualTo(thrownException.Message));
+            Assert.That(ex.InnerException, Is.TypeOf<NotImplementedException>());
         }
     }
 }

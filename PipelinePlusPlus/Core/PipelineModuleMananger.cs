@@ -5,28 +5,8 @@ using PipelinePlusPlus.EventArgs;
 
 namespace PipelinePlusPlus.Core
 {
-    public interface IPipelineModuleManager
-    {
-        void RegisterDynamicModules<TPipeline, TContext>(
-            TPipeline pipeline,
-            PipelineConfig<TContext> pipelineConfig,
-            EventHandler<PipelineModuleInitializingEventArgs> initializingHandler,
-            EventHandler<PipelineModuleInitializedEventArgs> initializedHandler)
-            where TPipeline : PipelineSteps
-            where TContext : PipelineContext;
-
-        void RegisterModules<TPipeline, TContext>(
-            TPipeline pipeline,
-            IEnumerable<PipelineModule<TPipeline, TContext>> modules,
-            EventHandler<PipelineModuleInitializingEventArgs> initializingHandler,
-            EventHandler<PipelineModuleInitializedEventArgs> initializedHandler)
-            where TPipeline : PipelineSteps
-            where TContext : PipelineContext;
-    }
-
     public class PipelineModuleMananger : IPipelineModuleManager
     {
-
         public void RegisterDynamicModules<TPipeline, TContext>(
             TPipeline pipeline,
             PipelineConfig<TContext> pipelineConfig,
@@ -58,10 +38,8 @@ namespace PipelinePlusPlus.Core
                 catch (PipelineConfigException e)
                 {
                     // log, go bang do what now....
-
                 }
             }
-
         }
 
         public void RegisterModules<TPipeline, TContext>(
@@ -94,42 +72,49 @@ namespace PipelinePlusPlus.Core
             }
         }
 
-        private bool FireInitializingEvent<TPipeline>(TPipeline pipeline, ModuleConfig module, EventHandler<PipelineModuleInitializingEventArgs> handler) where TPipeline : PipelineSteps
+        private bool FireInitializingEvent<TPipeline>(TPipeline pipeline, ModuleConfig module,
+            EventHandler<PipelineModuleInitializingEventArgs> handler) where TPipeline : PipelineSteps
         {
             var args = new PipelineModuleInitializingEventArgs(pipeline.PipelineName, module);
             return FireInitializingEvent(handler, args);
         }
 
-        private bool FireInitializingEvent<TPipeline>(TPipeline pipeline, Type moduleType, EventHandler<PipelineModuleInitializingEventArgs> handler) where TPipeline : PipelineSteps
+        private bool FireInitializingEvent<TPipeline>(TPipeline pipeline, Type moduleType,
+            EventHandler<PipelineModuleInitializingEventArgs> handler) where TPipeline : PipelineSteps
         {
-            var args = new PipelineModuleInitializingEventArgs(pipeline.PipelineName, moduleType.Name, moduleType.AssemblyQualifiedName);
+            var args = new PipelineModuleInitializingEventArgs(pipeline.PipelineName, moduleType.Name,
+                moduleType.AssemblyQualifiedName);
             return FireInitializingEvent(handler, args);
         }
 
-        private bool FireInitializingEvent(EventHandler<PipelineModuleInitializingEventArgs> handler, PipelineModuleInitializingEventArgs args)
+        private bool FireInitializingEvent(EventHandler<PipelineModuleInitializingEventArgs> handler,
+            PipelineModuleInitializingEventArgs args)
         {
             if (handler == null) return false;
             handler(this, args);
             return args.Cancel;
         }
 
-        private void FireInitializedEvent<TPipeline>(TPipeline pipeline, ModuleConfig module, EventHandler<PipelineModuleInitializedEventArgs> handler) where TPipeline : PipelineSteps
+        private void FireInitializedEvent<TPipeline>(TPipeline pipeline, ModuleConfig module,
+            EventHandler<PipelineModuleInitializedEventArgs> handler) where TPipeline : PipelineSteps
         {
             var args = new PipelineModuleInitializedEventArgs(pipeline.PipelineName, module);
             FireInitializedEvent(handler, args);
         }
 
-        private void FireInitializedEvent<TPipeline>(TPipeline pipeline, Type moduleType, EventHandler<PipelineModuleInitializedEventArgs> handler) where TPipeline : PipelineSteps
+        private void FireInitializedEvent<TPipeline>(TPipeline pipeline, Type moduleType,
+            EventHandler<PipelineModuleInitializedEventArgs> handler) where TPipeline : PipelineSteps
         {
-            var args = new PipelineModuleInitializedEventArgs(pipeline.PipelineName, moduleType.Name, moduleType.AssemblyQualifiedName);
+            var args = new PipelineModuleInitializedEventArgs(pipeline.PipelineName, moduleType.Name,
+                moduleType.AssemblyQualifiedName);
             FireInitializedEvent(handler, args);
         }
 
-        private void FireInitializedEvent(EventHandler<PipelineModuleInitializedEventArgs> handler, PipelineModuleInitializedEventArgs args)
+        private void FireInitializedEvent(EventHandler<PipelineModuleInitializedEventArgs> handler,
+            PipelineModuleInitializedEventArgs args)
         {
             if (handler == null) return;
             handler(this, args);
-
         }
     }
 }

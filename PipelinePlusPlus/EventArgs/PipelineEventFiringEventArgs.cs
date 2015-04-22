@@ -1,9 +1,5 @@
 namespace PipelinePlusPlus.EventArgs
 {
-    public class PipelineExceptionEventArgs
-    {
-    }
-
     public class PipelineEventFiringEventArgs : PipelineCancelEventArgsBase
     {
         public PipelineEventFiringEventArgs(string pipelineName)

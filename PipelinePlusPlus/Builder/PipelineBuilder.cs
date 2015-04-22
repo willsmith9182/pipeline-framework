@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Configuration;
-using System.Runtime.InteropServices;
 using PipelinePlusPlus.Core;
 using PipelinePlusPlus.Definition;
 using PipelinePlusPlus.EventArgs;
@@ -14,7 +11,10 @@ namespace PipelinePlusPlus.Builder
         where TPipeline : PipelineSteps, new()
         where TContext : PipelineContext
     {
+        // depencencies
         private readonly IPipelineModuleManager _moduleManager;
+        private readonly IPipelineDiscovery _pipelineDiscovery;
+        // builder state
         private readonly IList<PipelineModule<TPipeline, TContext>> _modules = new List<PipelineModule<TPipeline, TContext>>();
         private EventHandler<PipelineModuleInitializedEventArgs> _moduleInitialized;
         private EventHandler<PipelineModuleInitializingEventArgs> _moduleInitializing;
@@ -22,11 +22,10 @@ namespace PipelinePlusPlus.Builder
         private EventHandler<PipelineEventFiredEventArgs> _pipelineStageExecuted;
         private EventHandler<PipelineEventFiringEventArgs> _pipelineStageExecuting;
 
-
-        internal PipelineBuilder(IPipelineModuleManager moduleManager)
+        internal PipelineBuilder(IPipelineModuleManager moduleManager, IPipelineDiscovery pipelineDiscovery)
         {
             _moduleManager = moduleManager;
-
+            _pipelineDiscovery = pipelineDiscovery;
         }
 
         public IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(
@@ -79,13 +78,15 @@ namespace PipelinePlusPlus.Builder
             return this;
         }
 
-        public IPipelineBuilder<TPipeline, TContext> RegisterModule<T>(T module) where T : PipelineModule<TPipeline,TContext>
+        public IPipelineBuilder<TPipeline, TContext> RegisterModule<T>(T module)
+            where T : PipelineModule<TPipeline, TContext>
         {
             _modules.Add(module);
             return this;
         }
 
-        public IPipelineBuilder<TPipeline, TContext> RegisterModule<T>() where T : PipelineModule<TPipeline, TContext>, new()
+        public IPipelineBuilder<TPipeline, TContext> RegisterModule<T>()
+            where T : PipelineModule<TPipeline, TContext>, new()
         {
             _modules.Add(new T());
             return this;
@@ -94,17 +95,18 @@ namespace PipelinePlusPlus.Builder
         public IPipeline<TContext> Make(Func<System.Configuration.Configuration> getConfig)
         {
             var pipelineSteps = new TPipeline();
-            // get config from xml
+            // discover pipeline, does step check and inistalises pipeline ready for execution
+            var pipelineDefinition = _pipelineDiscovery.Discover<TContext>(pipelineSteps);
+
+            // get dynamic config information
             var pipelineConfig = new PipelineConfig<TContext>(pipelineSteps.PipelineName, getConfig);
 
-            //register modules
+            //register modules discovered or registered
             _moduleManager.RegisterDynamicModules(pipelineSteps, pipelineConfig, _moduleInitializing, _moduleInitialized);
             _moduleManager.RegisterModules(pipelineSteps, _modules, _moduleInitializing, _moduleInitialized);
-            //resolve steps
-            var def = pipelineSteps.ResolveActions<TContext>();
 
             // create execution context
-            var executionContext = new PipelineExecutionContext<TContext>(def, _onError)
+            var executionContext = new PipelineExecutionContext<TContext>(pipelineDefinition, _onError)
             {
                 PipelineStageExecuted = _pipelineStageExecuted,
                 PipelineStageExecuting = _pipelineStageExecuting
@@ -144,7 +146,7 @@ namespace PipelinePlusPlus.Builder
             where TPipeline : PipelineSteps, new()
             where TContext : PipelineContext
         {
-            return new PipelineBuilder<TPipeline, TContext>(new PipelineModuleMananger());
+            return new PipelineBuilder<TPipeline, TContext>(new PipelineModuleMananger(), new PipelineDiscovery());
         }
     }
 }

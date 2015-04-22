@@ -8,6 +8,7 @@ namespace PipelinePlusPlus.Core
             : base(message)
         {
         }
+
         public PipelineConfigException(string message, Exception innerException)
             : base(message, innerException)
         {

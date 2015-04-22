@@ -13,7 +13,7 @@ namespace PipelinePlusPlus.Attributes
             Order = order;
             TransactionScopeOption = scope;
         }
-        
+
         public int Order { get; private set; }
         public TransactionScopeOption TransactionScopeOption { get; private set; }
     }
