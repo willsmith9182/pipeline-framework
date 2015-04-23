@@ -1,9 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
+using System.Linq.Expressions;
+using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
+using PipelineFramework.Tests.TestData.Definition;
+using PipelinePlusPlus.Core.DynamicConfig;
+using PipelinePlusPlus.Core.EventArgs;
+using PipelinePlusPlus.Core.Modules;
+using PipelinePlusPlus.Core.Modules.Mananger;
 
 namespace PipelineFramework.Tests
 {
@@ -26,7 +34,7 @@ namespace PipelineFramework.Tests
 
             return ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
         }
-        
+
         //custom constraint for Nunit asertations. 
         internal class NameValueCollectionConstraint : Constraint
         {
@@ -65,6 +73,33 @@ namespace PipelineFramework.Tests
                 // if not all of them match (keys and values)
                 return matchingKeys.Count() == expectedKeys.Count() && expectedKeys.All(key => actual[key] == expected[key]);
             }
+        }
+
+        public static void VerifyRegisterModulesCall(
+            this Mock<IPipelineModuleManager> mock,
+            Expression<Func<IEnumerable<PipelineModule<TestPipeline, TestPipelineStepContext>>, bool>> modules,
+            Expression<Func<EventHandler<PipelineModuleInitializingEventArgs>, bool>> initialiseEvents,
+            Expression<Func<EventHandler<PipelineModuleInitializedEventArgs>, bool>> initialisedEvents)
+        {
+            mock.Verify(m =>
+               m.RegisterModules(
+                  It.IsAny<TestPipeline>(),
+                  It.Is(modules),
+                  It.Is(initialiseEvents),
+                  It.Is(initialisedEvents)));
+        }
+        public static void VerifyRegisterDynamicModulesCall(
+            this Mock<IPipelineModuleManager> mock,
+            Mock<PipelineDynamicModuleConfig> config,
+            Expression<Func<EventHandler<PipelineModuleInitializingEventArgs>, bool>> initialiseEvents,
+            Expression<Func<EventHandler<PipelineModuleInitializedEventArgs>, bool>> initialisedEvents)
+        {
+            mock.Verify(m =>
+               m.RegisterDynamicModules<TestPipeline, TestPipelineStepContext>(
+                  It.IsAny<TestPipeline>(),
+                  It.Is<PipelineDynamicModuleConfig>(i => i == config.Object),
+                  It.Is(initialiseEvents),
+                  It.Is(initialisedEvents)));
         }
     }
 }
