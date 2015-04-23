@@ -11,10 +11,11 @@ namespace PipelinePlusPlus.Core
         {
             Completed = completed;
             Errored = !completed;
-            if (!exceptions.Any()) return;
-            var msg = completed
-                ? "Pipeline ran to completion but errors were raised during the execution"
-                : "Pipeline was unable to complete due to exceptions encountered during execution";
+            if (!exceptions.Any())
+            {
+                return;
+            }
+            var msg = completed ? "Pipeline ran to completion but errors were raised during the execution" : "Pipeline was unable to complete due to exceptions encountered during execution";
             ExecutionException = new AggregateException(msg, exceptions);
         }
 

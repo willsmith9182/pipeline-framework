@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using PipelinePlusPlus.Core;
 using PipelinePlusPlus.Core.Context;
 using PipelinePlusPlus.Core.EventArgs;
@@ -12,9 +13,7 @@ namespace PipelinePlusPlus.Builder
     // this is where events are registered
     // a implementor of this platform will define this and the event order. 
 
-    public interface IPipelineBuilder<TPipeline, TContext>
-        where TPipeline : PipelineSteps, new()
-        where TContext : PipelineStepContext
+    public interface IPipelineBuilder<TPipeline, TContext> where TPipeline : PipelineSteps, new() where TContext : PipelineStepContext
     {
         IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del);
         IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<object, PipelineModuleInitializedEventArgs> del);
@@ -38,6 +37,6 @@ namespace PipelinePlusPlus.Builder
 
         IPipelineBuilder<TPipeline, TContext> RegisterModule<T>(T module) where T : PipelineModule<TPipeline, TContext>;
         IPipelineBuilder<TPipeline, TContext> RegisterModule<T>() where T : PipelineModule<TPipeline, TContext>, new();
-        IPipeline<TContext> Make(Func<System.Configuration.Configuration> getConfig);
+        IPipeline<TContext> Make(Configuration appConfig);
     }
 }

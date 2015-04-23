@@ -28,7 +28,10 @@ namespace PipelinePlusPlus.Core.Steps
         public void Execute(IPipelineExecutionContext<TContext> executionContext)
         {
             // if a handler skips this event?
-            if (!FireStageExecutingEvent(executionContext)) return;
+            if (!FireStageExecutingEvent(executionContext))
+            {
+                return;
+            }
 
             using (var actionScope = new TransactionScope())
             {
@@ -37,15 +40,22 @@ namespace PipelinePlusPlus.Core.Steps
                     try
                     {
                         module.ExecuteModule(executionContext.StepContext);
-                        if (executionContext.StepContext.CancelExecution) executionContext.CancelCurrentExecution();
+                        if (executionContext.StepContext.CancelExecution)
+                        {
+                            executionContext.CancelCurrentExecution();
+                        }
                     }
-                    catch (Exception e)
+                    catch (Exception
+                        e)
                     {
                         var pipeException = new PipelineException("", e);
                         executionContext.RegisterPipelineError(pipeException, module.ModuleName);
                     }
 
-                    if (executionContext.CancelExecution) return;
+                    if (executionContext.CancelExecution)
+                    {
+                        return;
+                    }
                 }
                 actionScope.Complete();
             }
@@ -54,7 +64,10 @@ namespace PipelinePlusPlus.Core.Steps
 
         private bool FireStageExecutingEvent(IPipelineExecutionContext<TContext> executionContext)
         {
-            if (executionContext.PipelineStageExecuting == null) return true;
+            if (executionContext.PipelineStageExecuting == null)
+            {
+                return true;
+            }
             var executingArgs = new PipelineEventFiringEventArgs(executionContext.PipelineName, StepName);
             executionContext.PipelineStageExecuting(this, executingArgs);
             return !executingArgs.Cancel;
@@ -62,7 +75,10 @@ namespace PipelinePlusPlus.Core.Steps
 
         private void FireStageExecutedEvent(IPipelineExecutionContext<TContext> executionContext)
         {
-            if (executionContext.PipelineStageExecuted == null) return;
+            if (executionContext.PipelineStageExecuted == null)
+            {
+                return;
+            }
             var executedArgs = new PipelineEventFiredEventArgs(executionContext.PipelineName, StepName);
             executionContext.PipelineStageExecuted(this, executedArgs);
         }

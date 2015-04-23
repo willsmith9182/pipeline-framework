@@ -49,6 +49,8 @@
     <Compile Include="Core\ConfigurationElements\PipelineElement.cs" />
     <Compile Include="Core\ConfigurationElements\PipelineElementCollection.cs" />
     <Compile Include="Core\ConfigurationElements\PipelineFrameworkConfigurationSection.cs" />
+    <Compile Include="Core\DynamicConfig\DynamicModuleConfig.cs" />
+    <Compile Include="Core\DynamicConfig\IDynamicModuleConfig.cs" />
     <Compile Include="Core\Modules\DynamicPipelineModule.cs" />
     <Compile Include="Core\IPipeline.cs" />
     <Compile Include="Builder\IPipelineBuilder.cs" />

@@ -3,14 +3,9 @@ using PipelinePlusPlus.Core.Context;
 
 namespace PipelinePlusPlus.Core
 {
-    internal class Pipeline<TContext> : IPipeline<TContext>
-        where TContext : PipelineStepContext
+    internal class Pipeline<TContext> : IPipeline<TContext> where TContext : PipelineStepContext
     {
-        public Pipeline(PipelineExecutionContext<TContext> executionContext)
-        {
-            ExecutionContext = executionContext;
-        }
-
+        public Pipeline(PipelineExecutionContext<TContext> executionContext) { ExecutionContext = executionContext; }
         public PipelineExecutionContext<TContext> ExecutionContext { get; private set; }
 
         public PipelineResult Execute(TContext context)
@@ -24,7 +19,10 @@ namespace PipelinePlusPlus.Core
                 foreach (var step in ExecutionContext.Steps)
                 {
                     step.Execute(ExecutionContext);
-                    if (ExecutionContext.CancelExecution) return new PipelineResult(false, ExecutionContext.Exceptions);
+                    if (ExecutionContext.CancelExecution)
+                    {
+                        return new PipelineResult(false, ExecutionContext.Exceptions);
+                    }
                 }
                 pipelineScope.Complete();
             }

@@ -9,20 +9,7 @@ namespace PipelinePlusPlus.Core.Modules.Mananger
 {
     public interface IPipelineModuleManager
     {
-        void RegisterDynamicModules<TPipeline, TContext>(
-            TPipeline pipeline,
-            PipelineDynamicModuleConfig<TContext> pipelineDynamicModuleConfig,
-            EventHandler<PipelineModuleInitializingEventArgs> initializingHandler,
-            EventHandler<PipelineModuleInitializedEventArgs> initializedHandler)
-            where TPipeline : PipelineSteps
-            where TContext : PipelineStepContext;
-
-        void RegisterModules<TPipeline, TContext>(
-            TPipeline pipeline,
-            IEnumerable<PipelineModule<TPipeline, TContext>> modules,
-            EventHandler<PipelineModuleInitializingEventArgs> initializingHandler,
-            EventHandler<PipelineModuleInitializedEventArgs> initializedHandler)
-            where TPipeline : PipelineSteps
-            where TContext : PipelineStepContext;
+        void RegisterDynamicModules<TPipeline, TContext>(TPipeline pipeline, PipelineDynamicModuleConfig pipelineDynamicModuleConfig, EventHandler<PipelineModuleInitializingEventArgs> initializingHandler, EventHandler<PipelineModuleInitializedEventArgs> initializedHandler) where TPipeline : PipelineSteps where TContext : PipelineStepContext;
+        void RegisterModules<TPipeline, TContext>(TPipeline pipeline, IEnumerable<PipelineModule<TPipeline, TContext>> modules, EventHandler<PipelineModuleInitializingEventArgs> initializingHandler, EventHandler<PipelineModuleInitializedEventArgs> initializedHandler) where TPipeline : PipelineSteps where TContext : PipelineStepContext;
     }
 }

@@ -6,21 +6,22 @@ namespace PipelinePlusPlus.Core.EventArgs
 {
     public class PipelineModuleInitializedEventArgs : PipelineEventArgsBase
     {
-        public PipelineModuleInitializedEventArgs(string pipelineName, ModuleConfig module)
-            : base(pipelineName)
+        public PipelineModuleInitializedEventArgs(string pipelineName, ModuleConfig module) : base(pipelineName)
         {
             ModuleName = module.Name;
             ModuleType = module.Type;
             AdditionalParameters = new Dictionary<string, string>();
 
-            foreach (var key in module.Parameters.AllKeys.Where(key => !AdditionalParameters.ContainsKey(key)))
+            foreach (var
+                key
+                in
+                module.Parameters.AllKeys.Where(key => !AdditionalParameters.ContainsKey(key)))
             {
                 AdditionalParameters.Add(key, module.Parameters[key]);
             }
         }
 
-        public PipelineModuleInitializedEventArgs(string pipelineName, string moduleName, string typeName)
-            : base(pipelineName)
+        public PipelineModuleInitializedEventArgs(string pipelineName, string moduleName, string typeName) : base(pipelineName)
         {
             ModuleName = moduleName;
             ModuleType = typeName;

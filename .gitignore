@@ -4,6 +4,6 @@
 packages/*
 *.ncrunchproject
 *.ncrunchsolution
-*.DotSettings.user
+
 *.crunchsolution.cache
 *.ncrunchsolution*

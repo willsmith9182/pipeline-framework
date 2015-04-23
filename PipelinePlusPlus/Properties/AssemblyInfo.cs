@@ -40,4 +40,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 // internals visible to tests!
+
 [assembly: InternalsVisibleTo("PipelineFramework.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

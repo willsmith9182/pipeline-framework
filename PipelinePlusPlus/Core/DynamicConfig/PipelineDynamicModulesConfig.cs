@@ -1,46 +1,15 @@
-﻿using System;
-using System.Configuration;
-using PipelinePlusPlus.Core.ConfigurationElements;
-using PipelinePlusPlus.Core.Exceptions;
-
-namespace PipelinePlusPlus.Core.DynamicConfig
+﻿namespace PipelinePlusPlus.Core.DynamicConfig
 {
-    public class PipelineDynamicModuleConfig<TContext>
+    public class PipelineDynamicModuleConfig
     {
-        public PipelineDynamicModuleConfig(string name, Func<System.Configuration.Configuration> getConfig)
+
+        public PipelineDynamicModuleConfig(string name)
         {
             Name = name;
             Modules = new ModulesConfig();
-            try
-            {
-                var config = getConfig();
-
-                var section = config.GetPipelineFrameworkConfiguration();
-
-                //if there is no config section for this pipeline, not to worry. 
-                //set up element and don't load any modules from configs. 
-                if (section == null) return;
-
-                var pipelineElement = section.Pipelines.GetByName(name);
-         
-                if (pipelineElement == null)
-                    throw new PipelineConfigException(
-                        string.Format("Unable to load config for pipeline '{0}', please check your app/web.config", name));
-
-                foreach (ProviderSettings item in pipelineElement.Modules)
-                    Modules.Add(item.Name, item.Type, item.Parameters);
-            }
-            catch (PipelineConfigException e)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                throw new PipelineConfigException("Unexpected error encountered, unable to process config", e);
-            }
         }
 
         public string Name { get; private set; }
-        public ModulesConfig Modules { get; private set; }
+        public ModulesConfig Modules { get; internal set; }
     }
 }

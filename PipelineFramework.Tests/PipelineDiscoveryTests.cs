@@ -2,7 +2,6 @@
 using System.Transactions;
 using NUnit.Framework;
 using PipelineFramework.Tests.TestData.Discovery;
-using PipelinePlusPlus.Core;
 using PipelinePlusPlus.Core.Discovery;
 using PipelinePlusPlus.Core.Exceptions;
 using PipelinePlusPlus.Core.Steps;
@@ -34,7 +33,8 @@ namespace PipelineFramework.Tests
             Assert.That(result.PipelineScopeOption, Is.EqualTo(TransactionScopeOption.Suppress));
             Assert.That(result.Actions.Count, Is.EqualTo(3));
 
-            var castActions = result.Actions.Cast<PipelineStepDefinintion<DiscoveryTestStepContext>>().ToArray();
+            var castActions = result.Actions.Cast<PipelineStepDefinintion<DiscoveryTestStepContext>>()
+                                    .ToArray();
 
             Assert.That(castActions, Is.Not.Empty);
             Assert.That(castActions.Count(), Is.EqualTo(result.Actions.Count));
@@ -49,17 +49,13 @@ namespace PipelineFramework.Tests
             // is the instance i hold in my def the same ref as the instance on the steps.  :)
             Assert.That(step1.Step, Is.SameAs(steps.TestStep1));
             Assert.That(step1.StepName, Is.EqualTo("TestStep1"));
-
         }
 
         [Test]
         public void WhenCallingDiscoverWithValidStepsWhereOneIsAlreadyInstantiated_ShouldInstantiateOtherSteps()
         {
             // arrange
-            var steps = new ThreeStepsWithAttributes
-            {
-                TestStep3 = new PipelineStep<DiscoveryTestStepContext>()
-            };
+            var steps = new ThreeStepsWithAttributes {TestStep3 = new PipelineStep<DiscoveryTestStepContext>()};
 
             var step3 = steps.TestStep3;
 
@@ -77,7 +73,7 @@ namespace PipelineFramework.Tests
 
             // are all the references all the same!
             Assert.That(step3, Is.SameAs(steps.TestStep3));
-            Assert.That(step3, Is.SameAs(((PipelineStepDefinintion<DiscoveryTestStepContext>)result.Actions.Last()).Step));
+            Assert.That(step3, Is.SameAs(((PipelineStepDefinintion<DiscoveryTestStepContext>) result.Actions.Last()).Step));
         }
 
         [Test]
@@ -85,7 +81,7 @@ namespace PipelineFramework.Tests
         {
             // arrange
             var steps = new ThreeStepsWithRequiredTranScope();
-            
+
             var sut = new PipelineDiscovery();
 
             // act
@@ -130,7 +126,6 @@ namespace PipelineFramework.Tests
             // assert
             Assert.That(ex, Is.Not.Null);
             Assert.That(ex.Message, Is.EqualTo(string.Format("No properties found on the Pipeline Definition '{0}'. Discovery Aborted", steps.PipelineName)));
-
         }
 
         [Test]

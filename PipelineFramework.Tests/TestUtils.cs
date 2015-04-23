@@ -12,35 +12,26 @@ namespace PipelineFramework.Tests
         public const string PipelineNameForTest = "TestPipeline";
 
         /// <summary>
-        /// Helper method, this takes a config name (minus the .config) and creates the delegate used to get 
-        /// said config file from the output directory. 
-        /// All config files MUST be set to Content and copy to output, 
-        /// otherwise the config file that is returned frmm this is a default config file 
-        /// which might give you false positives in your tests.  
+        ///     Helper method, this takes a config name (minus the .config) and creates the delegate used to get
+        ///     said config file from the output directory.
+        ///     All config files MUST be set to Content and copy to output,
+        ///     otherwise the config file that is returned frmm this is a default config file
+        ///     which might give you false positives in your tests.
         /// </summary>
         /// <param name="configName">The name of your .config file without the extension</param>
         /// <returns>Delegate to retrieve the Configuration</returns>
-        public static Func<Configuration> GenerateConfigFunc(string configName)
+        public static Configuration GenerateConfig(string configName)
         {
-            var configMap = new ExeConfigurationFileMap
-            {
-                ExeConfigFilename = string.Format("TestData\\Config\\{0}.config", configName)
-            };
+            var configMap = new ExeConfigurationFileMap { ExeConfigFilename = string.Format("TestData\\Config\\{0}.config", configName) };
 
-            return () => ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
+            return ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
         }
-
-
-
+        
         //custom constraint for Nunit asertations. 
         internal class NameValueCollectionConstraint : Constraint
         {
             private readonly NameValueCollection _expected;
-
-            public NameValueCollectionConstraint(NameValueCollection expected)
-            {
-                _expected = expected;
-            }
+            public NameValueCollectionConstraint(NameValueCollection expected) { _expected = expected; }
 
             public override bool Matches(object actualValue)
             {
@@ -54,11 +45,7 @@ namespace PipelineFramework.Tests
                 return collection != null && Match(collection, _expected);
             }
 
-            public override void WriteDescriptionTo(MessageWriter writer)
-            {
-                writer.WriteExpectedValue(_expected);
-            }
-
+            public override void WriteDescriptionTo(MessageWriter writer) { writer.WriteExpectedValue(_expected); }
 
             private static bool Match(NameValueCollection actual, NameValueCollection expected)
             {
@@ -66,19 +53,18 @@ namespace PipelineFramework.Tests
                 var actualKeys = actual.AllKeys.ToList();
 
                 // not the right ammount of keys to start with
-                if (expectedKeys.Count != actualKeys.Count) return false;
+                if (expectedKeys.Count != actualKeys.Count)
+                {
+                    return false;
+                }
 
                 // intersect the keys, find all the ones that match
-                var matchingKeys = expectedKeys.Intersect(actualKeys).ToList();
+                var matchingKeys = expectedKeys.Intersect(actualKeys)
+                                               .ToList();
 
                 // if not all of them match (keys and values)
                 return matchingKeys.Count() == expectedKeys.Count() && expectedKeys.All(key => actual[key] == expected[key]);
             }
-        }
-
-        internal static NameValueCollectionConstraint NameValueCollectionEqualTo(this Is issm, NameValueCollection expected)
-        {
-            return new NameValueCollectionConstraint(expected);
         }
     }
 }

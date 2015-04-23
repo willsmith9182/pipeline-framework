@@ -9,8 +9,7 @@ namespace PipelinePlusPlus.Core.Discovery
 {
     public class PipelineDefinition<TContext> where TContext : PipelineStepContext
     {
-        internal PipelineDefinition(IEnumerable<IPipelineStepDefinintion<TContext>> actions,
-            TransactionScopeOption pipelineScopeOption, string pipelineName)
+        internal PipelineDefinition(IEnumerable<IPipelineStepDefinintion<TContext>> actions, TransactionScopeOption pipelineScopeOption, string pipelineName)
         {
             Actions = new ReadOnlyCollection<IPipelineStepDefinintion<TContext>>(actions.ToList());
             PipelineScopeOption = pipelineScopeOption;
