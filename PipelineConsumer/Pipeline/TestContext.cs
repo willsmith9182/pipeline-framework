@@ -1,8 +1,9 @@
 using PipelinePlusPlus.Core;
+using PipelinePlusPlus.Core.Context;
 
 namespace PipelineConsumer.Pipeline
 {
-    internal class TestContext : PipelineContext
+    internal class TestStepContext : PipelineStepContext
     {
     }
 }

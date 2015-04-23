@@ -1,9 +1,10 @@
 ﻿using System.Transactions;
+using PipelinePlusPlus.Core.Context;
 
 namespace PipelinePlusPlus.Core
 {
     internal class Pipeline<TContext> : IPipeline<TContext>
-        where TContext : PipelineContext
+        where TContext : PipelineStepContext
     {
         public Pipeline(PipelineExecutionContext<TContext> executionContext)
         {

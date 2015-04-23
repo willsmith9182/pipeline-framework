@@ -1,6 +1,7 @@
 ﻿using System.Transactions;
-using PipelinePlusPlus.Attributes;
 using PipelinePlusPlus.Core;
+using PipelinePlusPlus.Core.Attributes;
+using PipelinePlusPlus.Core.Steps;
 
 namespace PipelineConsumer.Pipeline
 {
@@ -12,12 +13,12 @@ namespace PipelineConsumer.Pipeline
         }
 
         [PipelineStep(0, TransactionScopeOption.Required)]
-        public PipelineStep<TestContext> Step1 { get; set; }
+        public PipelineStep<TestStepContext> Step1 { get; set; }
 
         [PipelineStep(1, TransactionScopeOption.Required)]
-        public PipelineStep<TestContext> Step2 { get; set; }
+        public PipelineStep<TestStepContext> Step2 { get; set; }
 
         [PipelineStep(2, TransactionScopeOption.Required)]
-        public PipelineStep<TestContext> Step3 { get; set; }
+        public PipelineStep<TestStepContext> Step3 { get; set; }
     }
 }

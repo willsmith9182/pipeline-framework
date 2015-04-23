@@ -1,6 +1,10 @@
 ﻿using System;
 using PipelinePlusPlus.Core;
-using PipelinePlusPlus.EventArgs;
+using PipelinePlusPlus.Core.Context;
+using PipelinePlusPlus.Core.EventArgs;
+using PipelinePlusPlus.Core.Exceptions;
+using PipelinePlusPlus.Core.Modules;
+using PipelinePlusPlus.Core.Steps;
 
 namespace PipelinePlusPlus.Builder
 {
@@ -10,7 +14,7 @@ namespace PipelinePlusPlus.Builder
 
     public interface IPipelineBuilder<TPipeline, TContext>
         where TPipeline : PipelineSteps, new()
-        where TContext : PipelineContext
+        where TContext : PipelineStepContext
     {
         IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del);
         IPipelineBuilder<TPipeline, TContext> OnModuleInitialized(Action<object, PipelineModuleInitializedEventArgs> del);

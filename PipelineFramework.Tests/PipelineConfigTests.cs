@@ -3,7 +3,8 @@ using System.Collections.Specialized;
 using System.Linq;
 using NUnit.Framework;
 using PipelinePlusPlus.Core;
-using PipelinePlusPlus.Definition;
+using PipelinePlusPlus.Core.DynamicConfig;
+using PipelinePlusPlus.Core.Exceptions;
 
 namespace PipelineFramework.Tests
 {
@@ -16,11 +17,11 @@ namespace PipelineFramework.Tests
             // Arrange
             var config = TestUtils.GenerateConfigFunc("ConfigWithNoConfigSectionForPipeliner");
 
-            PipelineConfig<TestContext> sut = null;
+            PipelineDynamicModuleConfig<TestContext> sut = null;
             // Act - things happen on construction
             Assert.DoesNotThrow(() =>
             {
-                sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+                sut = new PipelineDynamicModuleConfig<TestContext>(TestUtils.PipelineNameForTest, config);
             });
 
             // Assert
@@ -38,7 +39,7 @@ namespace PipelineFramework.Tests
             // Act - things happen on construction
             var ex = Assert.Throws<PipelineConfigException>(() =>
             {
-                var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+                var sut = new PipelineDynamicModuleConfig<TestContext>(TestUtils.PipelineNameForTest, config);
             });
 
             // Assert
@@ -55,7 +56,7 @@ namespace PipelineFramework.Tests
             // Act - things happen on construction
             var ex = Assert.Throws<PipelineConfigException>(() =>
             {
-                var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+                var sut = new PipelineDynamicModuleConfig<TestContext>(TestUtils.PipelineNameForTest, config);
             });
 
             // Assert
@@ -69,7 +70,7 @@ namespace PipelineFramework.Tests
             var config = TestUtils.GenerateConfigFunc("ConfigWithOneModule");
 
             // Act - things happen on construction
-            var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+            var sut = new PipelineDynamicModuleConfig<TestContext>(TestUtils.PipelineNameForTest, config);
 
             // Assert
             Assert.That(sut.Modules.Count, Is.EqualTo(1));
@@ -82,7 +83,7 @@ namespace PipelineFramework.Tests
             var config = TestUtils.GenerateConfigFunc("ConfigWithFiveModules");
 
             // Act - things happen on construction
-            var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+            var sut = new PipelineDynamicModuleConfig<TestContext>(TestUtils.PipelineNameForTest, config);
 
             // Assert
             Assert.That(sut.Modules.Count, Is.EqualTo(5));
@@ -97,7 +98,7 @@ namespace PipelineFramework.Tests
             var expected = new ModuleConfig("KnownModule", "KnownNamespace.KnownModule, KnownAssembly", new NameValueCollection());
 
             // Act - things happen on construction
-            var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+            var sut = new PipelineDynamicModuleConfig<TestContext>(TestUtils.PipelineNameForTest, config);
 
             // Assert
             Assert.That(sut.Modules.Count, Is.EqualTo(1));
@@ -124,12 +125,50 @@ namespace PipelineFramework.Tests
             // Act - things happen on construction
             var ex = Assert.Throws<PipelineConfigException>(() =>
             {
-                var sut = new PipelineConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+                var sut = new PipelineDynamicModuleConfig<TestContext>(TestUtils.PipelineNameForTest, config);
             });
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Unexpected error encountered, unable to process config"));
             Assert.That(ex.InnerException.Message, Is.EqualTo(thrownException.Message));
             Assert.That(ex.InnerException, Is.TypeOf<NotImplementedException>());
+        }
+
+        [Test]
+        public void WhenConfigWithNoModules_ShouldHaveNoModulesInConfig()
+        {
+            // Arrange
+            var config = TestUtils.GenerateConfigFunc("ConfigWithNoModules");
+
+            // Act - things happen on construction
+            var sut = new PipelineDynamicModuleConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+
+            // Assert
+            Assert.That(sut.Modules.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void WhenConfigWithKnownModuleWithExtraAttributes_ShouldHaveKnownModuleLoaded()
+        {
+            // Arrange
+            var config = TestUtils.GenerateConfigFunc("ConfigWithExtraParamsOnKnownModule");
+
+            var extraProperties = new NameValueCollection { { "testValue1", "this is a test" }, { "testValue2", "7" } };
+            var expected = new ModuleConfig("KnownModule", "KnownNamespace.KnownModule, KnownAssembly", extraProperties);
+
+            // Act - things happen on construction
+            var sut = new PipelineDynamicModuleConfig<TestContext>(TestUtils.PipelineNameForTest, config);
+
+            // Assert
+            Assert.That(sut.Modules.Count, Is.EqualTo(1));
+            var module = sut.Modules.First();
+
+            Assert.That(module.Name, Is.EqualTo(expected.Name));
+            Assert.That(module.Type, Is.EqualTo(expected.Type));
+            Assert.That(module.Parameters, Is.EqualTo(expected.Parameters));
+            // custom test module that compares the keys and values of the NVC
+            Assert.That(module.Parameters, new TestUtils.NameValueCollectionConstraint(expected.Parameters));
+
+
         }
     }
 }

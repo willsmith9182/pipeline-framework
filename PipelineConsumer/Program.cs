@@ -11,7 +11,7 @@ namespace PipelineConsumer
     {
         static void Main(string[] args)
         {
-            var b = PipelineBuilder.CreatePipeline<TestPipeline, TestContext>()
+            var b = PipelineBuilder.CreatePipeline<TestPipeline, TestStepContext>()
                 .OnModuleInitialize(a => { Console.WriteLine("initializing module: {0}", a.ModuleName); })
                 .OnModuleInitialized(
                     a => { Console.WriteLine("module initialized and registered: {0}", a.ModuleName); })
@@ -27,7 +27,7 @@ namespace PipelineConsumer
                 .RegisterModule<ModuleThatWillBreak>()
                 .Make(() => ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None));
 
-            var cxt = new TestContext();
+            var cxt = new TestStepContext();
 
             var result = b.Execute(cxt);
 

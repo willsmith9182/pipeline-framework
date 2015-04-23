@@ -1,4 +1,5 @@
 ﻿using PipelinePlusPlus.Core;
+using PipelinePlusPlus.Core.Steps;
 
 namespace PipelineFramework.Tests.TestData.Definition
 {

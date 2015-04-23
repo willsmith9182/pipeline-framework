@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Specialized;
 using PipelinePlusPlus.Core;
+using PipelinePlusPlus.Core.Modules;
 
 namespace PipelineConsumer.Pipeline.Modules
 {
-    internal class ModuleForStep3 : PipelineModule<TestPipeline,TestContext>
+    internal class ModuleForStep3 : PipelineModule<TestPipeline,TestStepContext>
     {
         public ModuleForStep3()
             : base("ModuleForStep3")
@@ -16,7 +17,7 @@ namespace PipelineConsumer.Pipeline.Modules
             pipeline.Step3.RegisterModule(this);
         }
 
-        public override void ExecuteModule(TestContext cxt)
+        public override void ExecuteModule(TestStepContext cxt)
         {
             Console.WriteLine("Step 3 executed!");
         }

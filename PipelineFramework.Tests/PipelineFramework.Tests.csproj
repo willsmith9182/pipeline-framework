@@ -53,6 +53,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -60,6 +61,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestData\Discovery\DiscoveryTestContext.cs" />
+    <Compile Include="TestData\Discovery\ThreeStepsForWrongContext.cs" />
+    <Compile Include="TestData\Discovery\ThreeStepsWithRequiredTranScope .cs" />
+    <Compile Include="TestData\Discovery\ThreeStepsWithRequiresNewTranScope.cs" />
+    <Compile Include="TestData\Discovery\ThreeStepsWithInvalidOrder.cs" />
+    <Compile Include="TestData\Discovery\ThreeStepsWithMissingAttribute.cs" />
+    <Compile Include="TestData\Discovery\ThreeStepsWithAttributes.cs" />
     <Compile Include="PipelineBuilderTests.cs" />
     <Compile Include="PipelineConfigTests.cs" />
     <Compile Include="PipelineDiscoveryTests.cs" />
@@ -88,10 +96,13 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
-    <Content Include="TestData\Config\BuilderConfigNoModules.config">
+    <Content Include="TestData\Config\ConfigWithNoModules.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\Config\ConfigWithKnownModule.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\Config\ConfigWithExtraParamsOnKnownModule.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

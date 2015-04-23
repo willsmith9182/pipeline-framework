@@ -1,15 +1,30 @@
 using System;
 using System.Collections.Generic;
 using PipelinePlusPlus.Core;
-using PipelinePlusPlus.Definition;
-using PipelinePlusPlus.EventArgs;
-using PipelinePlusPlus.Util;
+using PipelinePlusPlus.Core.Context;
+using PipelinePlusPlus.Core.Discovery;
+using PipelinePlusPlus.Core.DynamicConfig;
+using PipelinePlusPlus.Core.EventArgs;
+using PipelinePlusPlus.Core.Exceptions;
+using PipelinePlusPlus.Core.Modules;
+using PipelinePlusPlus.Core.Modules.Mananger;
+using PipelinePlusPlus.Core.Steps;
 
 namespace PipelinePlusPlus.Builder
 {
+    public static class PipelineBuilder
+    {
+        public static IPipelineBuilder<TPipeline, TContext> CreatePipeline<TPipeline, TContext>()
+            where TPipeline : PipelineSteps, new()
+            where TContext : PipelineStepContext
+        {
+            return new PipelineBuilder<TPipeline, TContext>(new PipelineModuleMananger(), new PipelineDiscovery());
+        }
+    }
+
     public class PipelineBuilder<TPipeline, TContext> : IPipelineBuilder<TPipeline, TContext>
         where TPipeline : PipelineSteps, new()
-        where TContext : PipelineContext
+        where TContext : PipelineStepContext
     {
         // depencencies
         private readonly IPipelineModuleManager _moduleManager;
@@ -99,7 +114,7 @@ namespace PipelinePlusPlus.Builder
             var pipelineDefinition = _pipelineDiscovery.Discover<TContext>(pipelineSteps);
 
             // get dynamic config information
-            var pipelineConfig = new PipelineConfig<TContext>(pipelineSteps.PipelineName, getConfig);
+            var pipelineConfig = new PipelineDynamicModuleConfig<TContext>(pipelineSteps.PipelineName, getConfig);
 
             //register modules discovered or registered
             _moduleManager.RegisterDynamicModules(pipelineSteps, pipelineConfig, _moduleInitializing, _moduleInitialized);
@@ -140,13 +155,5 @@ namespace PipelinePlusPlus.Builder
         }
     }
 
-    public static class PipelineBuilder
-    {
-        public static IPipelineBuilder<TPipeline, TContext> CreatePipeline<TPipeline, TContext>()
-            where TPipeline : PipelineSteps, new()
-            where TContext : PipelineContext
-        {
-            return new PipelineBuilder<TPipeline, TContext>(new PipelineModuleMananger(), new PipelineDiscovery());
-        }
-    }
+    
 }

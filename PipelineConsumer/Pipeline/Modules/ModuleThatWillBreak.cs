@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Specialized;
 using PipelinePlusPlus.Core;
+using PipelinePlusPlus.Core.Modules;
 
 namespace PipelineConsumer.Pipeline.Modules
 {
-    internal class ModuleThatWillBreak : PipelineModule<TestPipeline,TestContext>
+    internal class ModuleThatWillBreak : PipelineModule<TestPipeline,TestStepContext>
     {
         public ModuleThatWillBreak() : base("ModuleThatWillBreak")
         {
@@ -15,7 +16,7 @@ namespace PipelineConsumer.Pipeline.Modules
             
         }
 
-        public override void ExecuteModule(TestContext cxt)
+        public override void ExecuteModule(TestStepContext cxt)
         {
             
         }

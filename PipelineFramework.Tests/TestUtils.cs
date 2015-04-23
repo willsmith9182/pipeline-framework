@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Configuration;
+using System.Linq;
+using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace PipelineFramework.Tests
 {
@@ -28,44 +32,53 @@ namespace PipelineFramework.Tests
 
 
 
-// custom constraint for Nunit asertations. 
-        // extension method need to no be called EqualTo()
-        //internal class NameValueCollectionConstraint : Constraint
-        //{
-        //    private readonly NameValueCollection _expected;
+        //custom constraint for Nunit asertations. 
+        internal class NameValueCollectionConstraint : Constraint
+        {
+            private readonly NameValueCollection _expected;
 
-        //    public NameValueCollectionConstraint(NameValueCollection expected)
-        //    {
-        //        _expected = expected;
-        //    }
+            public NameValueCollectionConstraint(NameValueCollection expected)
+            {
+                _expected = expected;
+            }
 
-        //    public override bool Matches(object actualValue)
-        //    {
-        //        // why this isn't done by the base i don't know. Bit silly tbh...
-        //        actual = actualValue;
-                
-        //        // safe cast
-        //        var collection = actualValue as NameValueCollection;
+            public override bool Matches(object actualValue)
+            {
+                // why this isn't done by the base i don't know. Bit silly tbh...
+                actual = actualValue;
 
-        //        // if it's a nvc and it matches, otherwise nope. 
-        //        return collection != null && Match(collection, _expected);
-        //    }
+                // safe cast
+                var collection = actualValue as NameValueCollection;
 
-        //    public override void WriteDescriptionTo(MessageWriter writer)
-        //    {
-        //        writer.WriteExpectedValue(_expected);
-        //    }
+                // if it's a nvc and it matches, otherwise nope. 
+                return collection != null && Match(collection, _expected);
+            }
+
+            public override void WriteDescriptionTo(MessageWriter writer)
+            {
+                writer.WriteExpectedValue(_expected);
+            }
 
 
-        //    private static bool Match(NameValueCollection actual, NameValueCollection expected)
-        //    {
-        //        return true;
-        //    }
-        //}
+            private static bool Match(NameValueCollection actual, NameValueCollection expected)
+            {
+                var expectedKeys = expected.AllKeys.ToList();
+                var actualKeys = actual.AllKeys.ToList();
 
-        ////internal static NameValueCollectionConstraint EqualTo(this Is issm, NameValueCollection expected)
-        ////{
-        ////    return new NameValueCollectionConstraint(expected);
-        ////}
+                // not the right ammount of keys to start with
+                if (expectedKeys.Count != actualKeys.Count) return false;
+
+                // intersect the keys, find all the ones that match
+                var matchingKeys = expectedKeys.Intersect(actualKeys).ToList();
+
+                // if not all of them match (keys and values)
+                return matchingKeys.Count() == expectedKeys.Count() && expectedKeys.All(key => actual[key] == expected[key]);
+            }
+        }
+
+        internal static NameValueCollectionConstraint NameValueCollectionEqualTo(this Is issm, NameValueCollection expected)
+        {
+            return new NameValueCollectionConstraint(expected);
+        }
     }
 }
