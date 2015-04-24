@@ -5,7 +5,11 @@ namespace PipelinePlusPlus.Core
 {
     internal class Pipeline<TContext> : IPipeline<TContext> where TContext : PipelineStepContext
     {
-        public Pipeline(PipelineExecutionContext<TContext> executionContext) { ExecutionContext = executionContext; }
+        public Pipeline(PipelineExecutionContext<TContext> executionContext)
+        {
+            ExecutionContext = executionContext;
+        }
+
         public PipelineExecutionContext<TContext> ExecutionContext { get; private set; }
 
         public PipelineResult Execute(TContext context)

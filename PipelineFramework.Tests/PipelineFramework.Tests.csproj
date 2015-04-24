@@ -67,6 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestData\Builder\TestPipeline.cs" />
+    <Compile Include="TestData\Builder\TestPipelineStepContext.cs" />
     <Compile Include="TestData\Discovery\DiscoveryTestContext.cs" />
     <Compile Include="TestData\Discovery\ThreeStepsForWrongContext.cs" />
     <Compile Include="TestData\Discovery\ThreeStepsWithRequiredTranScope .cs" />
@@ -78,8 +80,6 @@
     <Compile Include="DynamicModuleConfigTests.cs" />
     <Compile Include="PipelineDiscoveryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestData\Definition\TestPipeline.cs" />
-    <Compile Include="TestData\Definition\TestPipelineContext.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="TestUtilsTests.cs" />
   </ItemGroup>

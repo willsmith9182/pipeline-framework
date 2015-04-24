@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Specialized;
 using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
@@ -17,17 +12,29 @@ namespace PipelineFramework.Tests
         public void WhenUsingNameValueCollectionConstraintWithCorrectData_ShouldPass()
         {
             var expected = new NameValueCollection
-                           {
-                               {"Key1","Data1"},
-                               {"Key2","Data2"},
-                               {"Key3","Data3"},
-                           };
+            {
+                {
+                    "Key1", "Data1"
+                },
+                {
+                    "Key2", "Data2"
+                },
+                {
+                    "Key3", "Data3"
+                }
+            };
             var actual = new NameValueCollection
-                            {
-                                {"Key1","Data1"},
-                                {"Key2","Data2"},
-                                {"Key3","Data3"},
-                            };
+            {
+                {
+                    "Key1", "Data1"
+                },
+                {
+                    "Key2", "Data2"
+                },
+                {
+                    "Key3", "Data3"
+                }
+            };
 
 
             var sut = new TestUtils.NameValueCollectionConstraint(expected);
@@ -41,16 +48,26 @@ namespace PipelineFramework.Tests
         public void WhenUsingNameValueCollectionConstraintWithMissingKey_ShouldFail()
         {
             var expected = new NameValueCollection
-                           {
-                               {"Key1","Data1"},
-                               {"Key2","Data2"},
-                               {"Key3","Data3"},
-                           };
+            {
+                {
+                    "Key1", "Data1"
+                },
+                {
+                    "Key2", "Data2"
+                },
+                {
+                    "Key3", "Data3"
+                }
+            };
             var actual = new NameValueCollection
-                            {
-                                {"Key1","Data1"},
-                                {"Key3","Data3"},
-                            };
+            {
+                {
+                    "Key1", "Data1"
+                },
+                {
+                    "Key3", "Data3"
+                }
+            };
 
 
             var sut = new TestUtils.NameValueCollectionConstraint(expected);
@@ -64,17 +81,29 @@ namespace PipelineFramework.Tests
         public void WhenUsingNameValueCollectionConstraintWithMismatchingData_ShouldFail()
         {
             var expected = new NameValueCollection
-                           {
-                               {"Key1","Data1"},
-                               {"Key2","Data2"},
-                               {"Key3","Data3"},
-                           };
+            {
+                {
+                    "Key1", "Data1"
+                },
+                {
+                    "Key2", "Data2"
+                },
+                {
+                    "Key3", "Data3"
+                }
+            };
             var actual = new NameValueCollection
-                            {
-                                {"Key1","Data1"},
-                               {"Key2","Data2"},
-                               {"Key3","Data4"},
-                            };
+            {
+                {
+                    "Key1", "Data1"
+                },
+                {
+                    "Key2", "Data2"
+                },
+                {
+                    "Key3", "Data4"
+                }
+            };
 
 
             var sut = new TestUtils.NameValueCollectionConstraint(expected);
@@ -92,24 +121,36 @@ namespace PipelineFramework.Tests
             msgWriter.Setup(w => w.WriteExpectedValue(It.IsAny<object>()));
 
             var expected = new NameValueCollection
-                           {
-                               {"Key1","Data1"},
-                               {"Key2","Data2"},
-                               {"Key3","Data3"},
-                           };
+            {
+                {
+                    "Key1", "Data1"
+                },
+                {
+                    "Key2", "Data2"
+                },
+                {
+                    "Key3", "Data3"
+                }
+            };
             var actual = new NameValueCollection
-                            {
-                                {"Key1","Data1"},
-                                {"Key2","Data2"},
-                                {"Key3","Data3"},
-                            };
+            {
+                {
+                    "Key1", "Data1"
+                },
+                {
+                    "Key2", "Data2"
+                },
+                {
+                    "Key3", "Data3"
+                }
+            };
 
             var sut = new TestUtils.NameValueCollectionConstraint(expected);
 
-           sut.WriteDescriptionTo(msgWriter.Object);
+            sut.WriteDescriptionTo(msgWriter.Object);
 
             // verify call and value passed to writer. 
-            msgWriter.Verify(w=> w.WriteExpectedValue(It.Is<object>(o => o is NameValueCollection && ((NameValueCollection)o).Equals(expected))),Times.Exactly(1));
+            msgWriter.Verify(w => w.WriteExpectedValue(It.Is<object>(o => o is NameValueCollection && ((NameValueCollection) o).Equals(expected))), Times.Exactly(1));
         }
     }
 }

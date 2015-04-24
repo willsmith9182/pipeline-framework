@@ -2,7 +2,6 @@
 {
     public class PipelineDynamicModuleConfig
     {
-
         public PipelineDynamicModuleConfig(string name)
         {
             Name = name;

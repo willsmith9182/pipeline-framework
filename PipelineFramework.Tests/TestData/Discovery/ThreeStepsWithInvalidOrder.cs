@@ -1,11 +1,13 @@
 using PipelinePlusPlus.Core.Attributes;
 using PipelinePlusPlus.Core.Steps;
 
-namespace PipelineFramework.Tests.TestData.Discovery
+namespace PipelineFramework.Tests.TestData.Discovery.TestObjects
 {
     internal class ThreeStepsWithInvalidOrder : PipelineSteps
     {
-        public ThreeStepsWithInvalidOrder() : base("ThreeStepsWithInvalidOrder") { }
+        public ThreeStepsWithInvalidOrder() : base("ThreeStepsWithInvalidOrder")
+        {
+        }
 
         [PipelineStep(0)]
         public PipelineStep<DiscoveryTestStepContext> TestStep1 { get; set; }

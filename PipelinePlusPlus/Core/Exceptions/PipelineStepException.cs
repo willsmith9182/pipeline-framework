@@ -2,8 +2,11 @@ using System;
 
 namespace PipelinePlusPlus.Core.Exceptions
 {
+    [Serializable]
     public sealed class PipelineStepException : Exception
     {
-        public PipelineStepException(string message) : base(message) { }
+        internal PipelineStepException(string message) : base(message)
+        {
+        }
     }
 }

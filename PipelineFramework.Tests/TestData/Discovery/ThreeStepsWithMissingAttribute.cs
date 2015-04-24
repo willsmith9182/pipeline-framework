@@ -1,11 +1,13 @@
 using PipelinePlusPlus.Core.Attributes;
 using PipelinePlusPlus.Core.Steps;
 
-namespace PipelineFramework.Tests.TestData.Discovery
+namespace PipelineFramework.Tests.TestData.Discovery.TestObjects
 {
     internal class ThreeStepsWithMissingAttribute : PipelineSteps
     {
-        public ThreeStepsWithMissingAttribute() : base("ThreeStepsWithMissingAttribute") { }
+        public ThreeStepsWithMissingAttribute() : base("ThreeStepsWithMissingAttribute")
+        {
+        }
 
         [PipelineStep(0)]
         public PipelineStep<DiscoveryTestStepContext> TestStep1 { get; set; }

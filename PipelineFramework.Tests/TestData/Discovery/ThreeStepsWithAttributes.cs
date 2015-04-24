@@ -1,11 +1,13 @@
 using PipelinePlusPlus.Core.Attributes;
 using PipelinePlusPlus.Core.Steps;
 
-namespace PipelineFramework.Tests.TestData.Discovery
+namespace PipelineFramework.Tests.TestData.Discovery.TestObjects
 {
     internal class ThreeStepsWithAttributes : PipelineSteps
     {
-        public ThreeStepsWithAttributes() : base("ThreeStepsWithAttributes") { }
+        public ThreeStepsWithAttributes() : base(TestUtils.PipelineNameForTest)
+        {
+        }
 
         [PipelineStep(0)]
         public PipelineStep<DiscoveryTestStepContext> TestStep1 { get; set; }

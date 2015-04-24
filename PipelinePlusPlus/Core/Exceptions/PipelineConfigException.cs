@@ -2,9 +2,15 @@
 
 namespace PipelinePlusPlus.Core.Exceptions
 {
+    [Serializable]
     public class PipelineConfigException : Exception
     {
-        public PipelineConfigException(string message) : base(message) { }
-        public PipelineConfigException(string message, Exception innerException) : base(message, innerException) { }
+        internal PipelineConfigException(string message) : base(message)
+        {
+        }
+
+        internal PipelineConfigException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
     }
 }

@@ -1,52 +1,111 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Transactions;
 using MoreLinq;
 using PipelinePlusPlus.Core.Attributes;
 using PipelinePlusPlus.Core.Context;
+using PipelinePlusPlus.Core.DynamicConfig;
+using PipelinePlusPlus.Core.EventArgs;
 using PipelinePlusPlus.Core.Exceptions;
+using PipelinePlusPlus.Core.Modules;
+using PipelinePlusPlus.Core.Modules.Mananger;
 using PipelinePlusPlus.Core.Steps;
 
 namespace PipelinePlusPlus.Core.Discovery
 {
-    internal class PipelineDiscovery : IPipelineDiscovery
+    internal class DiscoverFactory : IDiscoveryFactory
     {
-        public PipelineDefinition<TContext> Discover<TContext>(PipelineSteps pipelineSteps) where TContext : PipelineStepContext
+        private readonly IDynamicModuleConfig _dynamicModuleConfig;
+        private readonly IPipelineModuleManager _moduleManager;
+        // non ioc based. 
+        // ncrunch: no coverage start
+        public DiscoverFactory() : this(new DynamicModuleConfig(), new PipelineModuleMananger())
         {
-            var properties = pipelineSteps.GetType()
-                                          .GetProperties()
-                                          .Where(p => p.PropertyType == typeof (PipelineStep<TContext>))
-                                          .ToList();
+        }
+
+        // ncrunch: no coverage end
+        public DiscoverFactory(IDynamicModuleConfig dynamicModuleConfig, IPipelineModuleManager moduleManager)
+        {
+            _dynamicModuleConfig = dynamicModuleConfig;
+            _moduleManager = moduleManager;
+        }
+
+        public IPipelineDiscovery<TPipeline, TContext> GetDiscovery<TPipeline, TContext>(TPipeline pipelineSteps, EventHandler<PipelineModuleInitializedEventArgs> moduleInitializedHandler, EventHandler<PipelineModuleInitializingEventArgs> moduleInitializingHandler) where TContext : PipelineStepContext where TPipeline : PipelineSteps
+        {
+            return new PipelineDiscovery<TPipeline, TContext>(_dynamicModuleConfig, _moduleManager, pipelineSteps, moduleInitializedHandler, moduleInitializingHandler);
+        }
+    }
+
+    internal class PipelineDiscovery<TPipeline, TContext> : IPipelineDiscovery<TPipeline, TContext> where TContext : PipelineStepContext where TPipeline : PipelineSteps
+    {
+        private readonly IDynamicModuleConfig _dynamicModuleConfig;
+        private readonly EventHandler<PipelineModuleInitializedEventArgs> _moduleInitializedHandler;
+        private readonly EventHandler<PipelineModuleInitializingEventArgs> _moduleInitializingHandler;
+        private readonly IPipelineModuleManager _moduleManager;
+        private readonly TPipeline _pipelineSteps;
+
+        public PipelineDiscovery(IDynamicModuleConfig dynamicModuleConfig, IPipelineModuleManager moduleManager, TPipeline pipelineSteps, EventHandler<PipelineModuleInitializedEventArgs> moduleInitializedHandler, EventHandler<PipelineModuleInitializingEventArgs> moduleInitializingHandler)
+        {
+            _dynamicModuleConfig = dynamicModuleConfig;
+            _pipelineSteps = pipelineSteps;
+            _moduleManager = moduleManager;
+            _moduleInitializedHandler = moduleInitializedHandler;
+            _moduleInitializingHandler = moduleInitializingHandler;
+        }
+
+        public PipelineDefinition<TContext> ResolvePipeline(IEnumerable<PipelineModule<TPipeline, TContext>> modules, Configuration appConfig)
+        {
+            // initialise the pipeline steps and grab definitions for method invocation and attribute info.
+            var definition = CreateDefinition();
+
+            // load config from app config
+            var dynamicConfig = _dynamicModuleConfig.GetConfig(_pipelineSteps.PipelineName, appConfig);
+
+            // register modules aganst the pipeline
+            _moduleManager.RegisterDynamicModules<TPipeline, TContext>(_pipelineSteps, dynamicConfig, _moduleInitializingHandler, _moduleInitializedHandler);
+            _moduleManager.RegisterModules(_pipelineSteps, modules, _moduleInitializingHandler, _moduleInitializedHandler);
+
+            return definition;
+        }
+
+        private PipelineDefinition<TContext> CreateDefinition()
+        {
+            var properties = _pipelineSteps.GetType()
+                .GetProperties()
+                .Where(p => p.PropertyType == typeof (PipelineStep<TContext>))
+                .ToList();
 
             if (!properties.Any())
             {
-                throw new PipelineDicoveryException(string.Format("No properties found on the Pipeline Definition '{0}'. Discovery Aborted", pipelineSteps.PipelineName));
+                throw new PipelineDicoveryException(string.Format("No properties found on the Pipeline Definition '{0}'. Discovery Aborted", _pipelineSteps.PipelineName));
             }
-            var propertyDefinitions = properties.Select(p => CreateDefinition<TContext>(p, pipelineSteps))
-                                                .ToList();
+            var propertyDefinitions = properties.Select(p => CreateStepDefinition(p, _pipelineSteps))
+                .ToList();
 
             // check to see if the list contains unique order values, the don't have to be in sequence, they just can't be duplicated in the sequence 
             if (propertyDefinitions.DistinctBy(p => p.Attr.Order)
-                                   .Count() != propertyDefinitions.Count)
+                .Count() != propertyDefinitions.Count)
             {
                 throw new PipelineDicoveryException("The order value in the PipelineStepAttribute has duplicates. Please review your steps and ensure that the SequenceOrder value is set correctly and not duplicated per task.");
             }
 
-            var sortedProperties = propertyDefinitions.OrderBy(p => p, new PipelineStepComparer<TContext>())
-                                                      .ToList();
+            var sortedProperties = propertyDefinitions.OrderBy(p => p, new PipelineStepComparer())
+                .ToList();
 
             var pipelineScopeOption = RequiredTransactionScope(sortedProperties);
 
-            return new PipelineDefinition<TContext>(sortedProperties, pipelineScopeOption, pipelineSteps.PipelineName);
+            return new PipelineDefinition<TContext>(sortedProperties, pipelineScopeOption, _pipelineSteps.PipelineName);
         }
 
-        private static PipelineStepDefinintion<TContext> CreateDefinition<TContext>(PropertyInfo prop, PipelineSteps steps) where TContext : PipelineStepContext
+        private static PipelineStepDefinintion<TContext> CreateStepDefinition(PropertyInfo prop, TPipeline steps)
         {
             //get the decorating attribute off. 
             var attr = prop.GetCustomAttributes(typeof (PipelineStepAttribute), true)
-                           .Cast<PipelineStepAttribute>()
-                           .FirstOrDefault();
+                .Cast<PipelineStepAttribute>()
+                .FirstOrDefault();
             // has to be done. shame.
             if (attr == null)
             {
@@ -67,7 +126,7 @@ namespace PipelinePlusPlus.Core.Discovery
             return new PipelineStepDefinintion<TContext>(prop.Name, attr, step);
         }
 
-        private static TransactionScopeOption RequiredTransactionScope<TContext>(ICollection<PipelineStepDefinintion<TContext>> defs) where TContext : PipelineStepContext
+        private static TransactionScopeOption RequiredTransactionScope(ICollection<PipelineStepDefinintion<TContext>> defs)
         {
             if (defs.Any(d => d.Attr.TransactionScopeOption == TransactionScopeOption.RequiresNew))
             {
@@ -76,9 +135,12 @@ namespace PipelinePlusPlus.Core.Discovery
             return defs.Any(d => d.Attr.TransactionScopeOption == TransactionScopeOption.Required) ? TransactionScopeOption.Required : TransactionScopeOption.Suppress;
         }
 
-        internal class PipelineStepComparer<TContext> : IComparer<PipelineStepDefinintion<TContext>> where TContext : PipelineStepContext
+        internal class PipelineStepComparer : IComparer<PipelineStepDefinintion<TContext>>
         {
-            int IComparer<PipelineStepDefinintion<TContext>>.Compare(PipelineStepDefinintion<TContext> x, PipelineStepDefinintion<TContext> y) { return x.Attr.Order.CompareTo(y.Attr.Order); }
+            int IComparer<PipelineStepDefinintion<TContext>>.Compare(PipelineStepDefinintion<TContext> x, PipelineStepDefinintion<TContext> y)
+            {
+                return x.Attr.Order.CompareTo(y.Attr.Order);
+            }
         }
     }
 }

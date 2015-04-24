@@ -2,8 +2,11 @@ using System;
 
 namespace PipelinePlusPlus.Core.Exceptions
 {
-    internal class PipelineDicoveryException : Exception
+    [Serializable]
+    public sealed class PipelineDicoveryException : Exception
     {
-        public PipelineDicoveryException(string message) : base(message) { }
+        internal PipelineDicoveryException(string message) : base(message)
+        {
+        }
     }
 }

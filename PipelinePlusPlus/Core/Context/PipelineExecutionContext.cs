@@ -24,15 +24,40 @@ namespace PipelinePlusPlus.Core.Context
             _exceptions = new Collection<PipelineException>();
         }
 
-        public IReadOnlyCollection<PipelineException> Exceptions { get { return _exceptions; } }
-        public IReadOnlyCollection<IPipelineStepDefinintion<TContext>> Steps { get { return _definition.Actions; } }
+        public IReadOnlyCollection<PipelineException> Exceptions
+        {
+            get { return _exceptions; }
+        }
+
+        public IReadOnlyCollection<IPipelineStepDefinintion<TContext>> Steps
+        {
+            get { return _definition.Actions; }
+        }
+
         public EventHandler<PipelineEventFiredEventArgs> PipelineStageExecuted { get; set; }
         public EventHandler<PipelineEventFiringEventArgs> PipelineStageExecuting { get; set; }
         public bool CancelExecution { get; private set; }
-        public TContext StepContext { get { return _stepContext; } internal set { ResetContext(value); } }
-        public TransactionScopeOption PipelineScope { get { return _definition.PipelineScopeOption; } }
-        public string PipelineName { get { return _definition.PipelineName; } }
-        public void CancelCurrentExecution() { CancelCurrentExecution(null); }
+
+        public TContext StepContext
+        {
+            get { return _stepContext; }
+            internal set { ResetContext(value); }
+        }
+
+        public TransactionScopeOption PipelineScope
+        {
+            get { return _definition.PipelineScopeOption; }
+        }
+
+        public string PipelineName
+        {
+            get { return _definition.PipelineName; }
+        }
+
+        public void CancelCurrentExecution()
+        {
+            CancelCurrentExecution(null);
+        }
 
         public void CancelCurrentExecution(PipelineException cancellation)
         {

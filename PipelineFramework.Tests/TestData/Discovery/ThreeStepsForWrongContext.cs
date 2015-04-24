@@ -2,11 +2,13 @@
 using PipelinePlusPlus.Core.Context;
 using PipelinePlusPlus.Core.Steps;
 
-namespace PipelineFramework.Tests.TestData.Discovery
+namespace PipelineFramework.Tests.TestData.Discovery.TestObjects
 {
     internal class ThreeStepsForWrongContext : PipelineSteps
     {
-        public ThreeStepsForWrongContext() : base("ThreeStepsForWrongContext") { }
+        public ThreeStepsForWrongContext() : base("ThreeStepsForWrongContext")
+        {
+        }
 
         [PipelineStep(0)]
         public PipelineStep<TheWrongStepContext> TestStep1 { get; set; }
@@ -17,6 +19,8 @@ namespace PipelineFramework.Tests.TestData.Discovery
         [PipelineStep(2)]
         public PipelineStep<TheWrongStepContext> TestStep3 { get; set; }
 
-        internal class TheWrongStepContext : PipelineStepContext {}
+        internal class TheWrongStepContext : PipelineStepContext
+        {
+        }
     }
 }

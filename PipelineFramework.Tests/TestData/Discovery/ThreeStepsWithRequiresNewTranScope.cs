@@ -2,11 +2,13 @@ using System.Transactions;
 using PipelinePlusPlus.Core.Attributes;
 using PipelinePlusPlus.Core.Steps;
 
-namespace PipelineFramework.Tests.TestData.Discovery
+namespace PipelineFramework.Tests.TestData.Discovery.TestObjects
 {
     internal class ThreeStepsWithRequiresNewTranScope : PipelineSteps
     {
-        public ThreeStepsWithRequiresNewTranScope() : base("ThreeStepsWithRequiresNewTranScope") { }
+        public ThreeStepsWithRequiresNewTranScope() : base("ThreeStepsWithRequiresNewTranScope")
+        {
+        }
 
         [PipelineStep(0, TransactionScopeOption.RequiresNew)]
         public PipelineStep<DiscoveryTestStepContext> TestStep1 { get; set; }

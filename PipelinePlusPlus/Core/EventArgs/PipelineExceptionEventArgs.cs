@@ -1,4 +1,6 @@
 namespace PipelinePlusPlus.Core.EventArgs
 {
-    public class PipelineExceptionEventArgs {}
+    public class PipelineExceptionEventArgs
+    {
+    }
 }

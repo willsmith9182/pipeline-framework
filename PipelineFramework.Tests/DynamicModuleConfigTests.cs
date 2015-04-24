@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Linq;
 using NUnit.Framework;
 using PipelinePlusPlus.Core.DynamicConfig;
@@ -112,7 +111,6 @@ namespace PipelineFramework.Tests
         [Test]
         public void WhenUnexpectedException_ShouldWrapInConfigException()
         {
-
             // Act
             var ex = Assert.Throws<PipelineConfigException>(() => { var result = _sut.GetConfig(TestUtils.PipelineNameForTest, null); });
             // Assert
@@ -140,7 +138,15 @@ namespace PipelineFramework.Tests
             // Arrange
             var config = TestUtils.GenerateConfig("ConfigWithExtraParamsOnKnownModule");
 
-            var extraProperties = new NameValueCollection { { "testValue1", "this is a test" }, { "testValue2", "7" } };
+            var extraProperties = new NameValueCollection
+            {
+                {
+                    "testValue1", "this is a test"
+                },
+                {
+                    "testValue2", "7"
+                }
+            };
             var expected = new ModuleConfig("KnownModule", "KnownNamespace.KnownModule, KnownAssembly", extraProperties);
 
             // Act
