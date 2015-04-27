@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestData\Builder\ParamlessModule.cs" />
     <Compile Include="TestData\Builder\TestPipeline.cs" />
     <Compile Include="TestData\Builder\TestPipelineStepContext.cs" />
     <Compile Include="TestData\Discovery\DiscoveryTestContext.cs" />

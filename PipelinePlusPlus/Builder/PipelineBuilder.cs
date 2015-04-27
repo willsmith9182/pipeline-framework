@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using PipelinePlusPlus.Core;
 using PipelinePlusPlus.Core.Context;
@@ -13,19 +14,24 @@ namespace PipelinePlusPlus.Builder
 {
     public static class PipelineBuilder
     {
-        public static IPipelineBuilder<TPipeline, TContext> CreatePipeline<TPipeline, TContext>() where TPipeline : PipelineSteps, new() where TContext : PipelineStepContext
+        public static IPipelineBuilder<TPipeline, TContext> CreatePipeline<TPipeline, TContext>()
+            where TPipeline : PipelineSteps, new()
+            where TContext : PipelineStepContext
         {
             return new PipelineBuilder<TPipeline, TContext>();
         }
     }
 
-    public class PipelineBuilder<TPipeline, TContext> : IPipelineBuilder<TPipeline, TContext> where TPipeline : PipelineSteps, new() where TContext : PipelineStepContext
+    public class PipelineBuilder<TPipeline, TContext> : IPipelineBuilder<TPipeline, TContext>
+        where TPipeline : PipelineSteps, new()
+        where TContext : PipelineStepContext
     {
         private readonly IDiscoveryFactory _discoveryFactory;
         // builder state
         private readonly IList<PipelineModule<TPipeline, TContext>> _modules;
         // ncrunch: no coverage start
-        internal PipelineBuilder() : this(new DiscoverFactory())
+        internal PipelineBuilder()
+            : this(new DiscoverFactory())
         {
         }
 
@@ -46,11 +52,16 @@ namespace PipelinePlusPlus.Builder
             _modules = new List<PipelineModule<TPipeline, TContext>>();
         }
 
-        public EventHandler<PipelineModuleInitializedEventArgs> ModuleInitializedHandler { get; private set; }
-        public EventHandler<PipelineModuleInitializingEventArgs> ModuleInitializingHandler { get; private set; }
-        public Func<PipelineException, bool> OnError { get; private set; }
-        public EventHandler<PipelineEventFiredEventArgs> PipelineStageExecutedHandler { get; private set; }
-        public EventHandler<PipelineEventFiringEventArgs> PipelineStageExecutingHandler { get; private set; }
+        internal IReadOnlyCollection<PipelineModule<TPipeline, TContext>> Modules
+        {
+            get { return new ReadOnlyCollection<PipelineModule<TPipeline, TContext>>(_modules); }
+        }
+        internal EventHandler<PipelineModuleInitializedEventArgs> ModuleInitializedHandler { get; private set; }
+        internal EventHandler<PipelineModuleInitializingEventArgs> ModuleInitializingHandler { get; private set; }
+        internal Func<PipelineException, bool> OnError { get; private set; }
+        internal EventHandler<PipelineEventFiredEventArgs> PipelineStageExecutedHandler { get; private set; }
+        internal EventHandler<PipelineEventFiringEventArgs> PipelineStageExecutingHandler { get; private set; }
+
         // pass through methods. 
         public IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del)
         {
@@ -121,7 +132,8 @@ namespace PipelinePlusPlus.Builder
             // create execution context
             var executionContext = new PipelineExecutionContext<TContext>(pipelineDefinition, OnError)
             {
-                PipelineStageExecuted = PipelineStageExecutedHandler, PipelineStageExecuting = PipelineStageExecutingHandler
+                PipelineStageExecuted = PipelineStageExecutedHandler,
+                PipelineStageExecuting = PipelineStageExecutingHandler
             };
 
             return new Pipeline<TContext>(executionContext);
