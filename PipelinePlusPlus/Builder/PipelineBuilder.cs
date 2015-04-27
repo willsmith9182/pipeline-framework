@@ -42,10 +42,10 @@ namespace PipelinePlusPlus.Builder
             _discoveryFactory = discoveryFactory;
 
             // initialise handlers to null.
-            ModuleInitializedHandler = null;
-            ModuleInitializingHandler = null;
-            PipelineStageExecutedHandler = null;
-            PipelineStageExecutingHandler = null;
+            ModuleInitializedHandler = (e, a) => { };
+            ModuleInitializingHandler = (e, a) => { };
+            PipelineStageExecutedHandler = (e, a) => { };
+            PipelineStageExecutingHandler = (e, a) => { };
             // stop pipeline on error
             OnError = e => true;
             // initialise module list
@@ -56,12 +56,12 @@ namespace PipelinePlusPlus.Builder
         {
             get { return new ReadOnlyCollection<PipelineModule<TPipeline, TContext>>(_modules); }
         }
+
         internal EventHandler<PipelineModuleInitializedEventArgs> ModuleInitializedHandler { get; private set; }
         internal EventHandler<PipelineModuleInitializingEventArgs> ModuleInitializingHandler { get; private set; }
         internal Func<PipelineException, bool> OnError { get; private set; }
         internal EventHandler<PipelineEventFiredEventArgs> PipelineStageExecutedHandler { get; private set; }
         internal EventHandler<PipelineEventFiringEventArgs> PipelineStageExecutingHandler { get; private set; }
-
         // pass through methods. 
         public IPipelineBuilder<TPipeline, TContext> OnModuleInitialize(Action<object, PipelineModuleInitializingEventArgs> del)
         {

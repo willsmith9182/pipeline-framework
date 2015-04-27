@@ -2,6 +2,7 @@ using System.Configuration;
 
 namespace PipelinePlusPlus.Core.ConfigurationElements
 {
+    // ncrunch: no coverage start
     public class PipelineElement : ConfigurationElement
     {
         [ConfigurationProperty("name", IsRequired = true, IsKey = true)]

@@ -407,6 +407,5 @@ namespace PipelineFramework.Tests
             // assert call to dynamic config
             _mockDynamicConfig.VerifyGetConfigCall(steps.PipelineName, config);
         }
-
     }
 }

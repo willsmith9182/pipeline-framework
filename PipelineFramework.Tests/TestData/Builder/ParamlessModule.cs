@@ -2,6 +2,7 @@
 
 namespace PipelineFramework.Tests.TestData.Builder
 {
+    // ncrunch: no coverage start
     internal class ParamlessModule : PipelineModule<TestPipeline, TestPipelineStepContext>
     {
         public ParamlessModule()

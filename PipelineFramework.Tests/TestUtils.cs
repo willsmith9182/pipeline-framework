@@ -108,6 +108,41 @@ namespace PipelineFramework.Tests
             return new List<PipelineModule<TPipeline, DiscoveryTestStepContext>>();
         }
 
+        internal class EventHandlerConstraint<T> : Constraint
+        {
+            private readonly EventHandler<T> _expected;
+
+            public EventHandlerConstraint(EventHandler<T> expected)
+            {
+                _expected = expected;
+            }
+
+            public override bool Matches(object actualValue)
+            {
+                actual = actualValue;
+                var del = actualValue as EventHandler<T>;
+                return Match(del, _expected);
+            }
+
+            // ncrunch: no coverage start
+            public override void WriteDescriptionTo(MessageWriter writer)
+            {
+                writer.WriteExpectedValue(_expected);
+            }
+
+            // ncrunch: no coverage end
+            private static bool Match(EventHandler<T> actual, EventHandler<T> expected)
+            {
+                // ncrunch: no coverage start
+                if (actual == null || expected == null)
+                {
+                    return false;
+                }
+                // ncrunch: no coverage end
+                return actual.Equals(expected);
+            }
+        }
+
         //custom constraint for Nunit asertations. 
         internal class NameValueCollectionConstraint : Constraint
         {

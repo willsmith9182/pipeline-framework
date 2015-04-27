@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace PipelinePlusPlus.Core.ConfigurationElements
 {
+    // ncrunch: no coverage start
     [ConfigurationCollection(typeof (PipelineElement), AddItemName = "pipeline")]
     public class PipelineElementCollection : ConfigurationElementCollection
     {

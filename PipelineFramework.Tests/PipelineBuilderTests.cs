@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.Remoting.Channels;
 using System.Transactions;
 using Moq;
-using NUnit.Core;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using PipelineFramework.Tests.TestData.Builder;
 using PipelinePlusPlus.Builder;
 using PipelinePlusPlus.Core;
@@ -21,7 +17,6 @@ using PipelinePlusPlus.Core.Steps;
 namespace PipelineFramework.Tests
 {
     [TestFixture]
-
     public class PipelineBuilderTests
     {
         private Mock<IPipelineDiscovery<TestPipeline, TestPipelineStepContext>> _mockDiscovery;
@@ -34,9 +29,9 @@ namespace PipelineFramework.Tests
             _mockDiscoveryFactory = new Mock<IDiscoveryFactory>(MockBehavior.Strict);
 
             _mockDiscoveryFactory.Setup(m => m.GetDiscovery<TestPipeline, TestPipelineStepContext>(
-                    It.IsAny<TestPipeline>(),
-                    It.IsAny<EventHandler<PipelineModuleInitializedEventArgs>>(),
-                    It.IsAny<EventHandler<PipelineModuleInitializingEventArgs>>()))
+                It.IsAny<TestPipeline>(),
+                It.IsAny<EventHandler<PipelineModuleInitializedEventArgs>>(),
+                It.IsAny<EventHandler<PipelineModuleInitializingEventArgs>>()))
                 .Returns(() => _mockDiscovery.Object);
         }
 
@@ -45,9 +40,10 @@ namespace PipelineFramework.Tests
             Setup();
 
             _mockDiscovery.Setup(m => m.ResolvePipeline(It.IsAny<IEnumerable<PipelineModule<TestPipeline, TestPipelineStepContext>>>(), It.IsAny<Configuration>())).Returns(def);
-
+            // ncrunch: no coverage start
             if (postSetup != null)
                 postSetup();
+            // ncrunch: no coverage end
 
             return new PipelineBuilder<TestPipeline, TestPipelineStepContext>(_mockDiscoveryFactory.Object);
         }
@@ -61,8 +57,10 @@ namespace PipelineFramework.Tests
         [Test]
         public void WhenUsingBuilderAddingOnPipelineStageExectueHandler_OnPipelineStageExectueHandlerShouldBeUpdated()
         {
-            // Arrange -- not using dependencies so passing null.
-            var sut = CreateSut(null);
+            // A NOTE ABOUT HANDLERS. Fuck handlers initializing to null. That's why the counts are +1 than you'd think.
+
+            // Arrange
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
 
             // the current count of handlers in the builder,
             // must check for null. 
@@ -81,15 +79,16 @@ namespace PipelineFramework.Tests
             var finalHandlerCount = sut.PipelineStageExecutingHandler.GetInvocationList().Count();
 
             Assert.That(initialHandlerCount, Is.Not.EqualTo(finalHandlerCount));
-            Assert.That(finalHandlerCount, Is.EqualTo(2));
-
+            Assert.That(finalHandlerCount, Is.EqualTo(3));
         }
 
         [Test]
         public void WhenUsingBuilderAddingOnPipelineStageExectuedHandler_OnPipelineStageExectuedHandlerShouldBeUpdated()
         {
-            // Arrange -- not using dependencies so passing null.
-            var sut = CreateSut(null);
+            // A NOTE ABOUT HANDLERS. Fuck handlers initializing to null. That's why the counts are +1 than you'd think.
+
+            // Arrange
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
 
             // the current count of handlers in the builder,
             // must check for null. 
@@ -107,14 +106,16 @@ namespace PipelineFramework.Tests
             var finalHandlerCount = sut.PipelineStageExecutedHandler.GetInvocationList().Count();
 
             Assert.That(initialHandlerCount, Is.Not.EqualTo(finalHandlerCount));
-            Assert.That(finalHandlerCount, Is.EqualTo(2));
+            Assert.That(finalHandlerCount, Is.EqualTo(3));
         }
 
         [Test]
         public void WhenUsingBuilderAddingOnModuleInitializingHandler_OnModuleInitializingHandlerShouldBeUpdated()
         {
-            // Arrange -- not using dependencies so passing null.
-            var sut = CreateSut(null);
+            // A NOTE ABOUT HANDLERS. Fuck handlers initializing to null. That's why the counts are +1 than you'd think.
+
+            // Arrange
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
 
             // the current count of handlers in the builder,
             // must check for null. 
@@ -127,21 +128,21 @@ namespace PipelineFramework.Tests
             sut.OnModuleInitialize((sender, args) => { });
 
 
-
             // Assert
             Assert.That(sut.ModuleInitializingHandler, Is.Not.Null);
             var finalHandlerCount = sut.ModuleInitializingHandler.GetInvocationList().Count();
 
             Assert.That(initialHandlerCount, Is.Not.EqualTo(finalHandlerCount));
-            Assert.That(finalHandlerCount, Is.EqualTo(2));
+            Assert.That(finalHandlerCount, Is.EqualTo(3));
         }
-
 
         [Test]
         public void WhenUsingBuilderAddingOnModuleInitializedHandler_OnModuleInitializedHandlerShouldBeUpdated()
         {
-            // Arrange -- not using dependencies so passing null.
-            var sut = CreateSut(null);
+            // A NOTE ABOUT HANDLERS. Fuck handlers initializing to null. That's why the counts are +1 than you'd think.
+
+            // Arrange
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
 
             // the current count of handlers in the builder,
             // must check for null. 
@@ -159,14 +160,14 @@ namespace PipelineFramework.Tests
             var finalHandlerCount = sut.ModuleInitializedHandler.GetInvocationList().Count();
 
             Assert.That(initialHandlerCount, Is.Not.EqualTo(finalHandlerCount));
-            Assert.That(finalHandlerCount, Is.EqualTo(2));
+            Assert.That(finalHandlerCount, Is.EqualTo(3));
         }
 
         [Test]
         public void WhenUsingBuilderAddingOnErrorHandler_OnErrorHandlerShouldBeUpdated()
         {
-            // Arrange -- not using dependencies so passing null.
-            var sut = CreateSut(null);
+            // Arrange
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
 
             // the current count of handlers in the builder,
             // must check for null. 
@@ -187,8 +188,8 @@ namespace PipelineFramework.Tests
         [Test]
         public void WhenUsingBuilderAddingMultipeOnErrorHandler_ShouldOnlyHaveLastOnErrorHandlerEntered()
         {
-            // Arrange -- not using dependencies so passing null.
-            var sut = CreateSut(null);
+            // Arrange
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
 
             // the current count of handlers in the builder,
             // must check for null. 
@@ -215,8 +216,8 @@ namespace PipelineFramework.Tests
         [Test]
         public void WhenUsingBuilderToRegisterModuleGeneric_ShouldHaveCorrectNumberOfModules()
         {
-            // Arrange -- not using dependencies so passing null.
-            var sut = CreateSut(null);
+            // Arrange
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
 
             // the current count of handlers in the builder,
             // must check for null. 
@@ -238,11 +239,10 @@ namespace PipelineFramework.Tests
         [Test]
         public void WhenUsingBuilderToRegisterModule_ShouldHaveCorrectNumberOfModules()
         {
-            // Arrange -- not using dependencies so passing null.
-            var sut = CreateSut(null);
+            // Arrange
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
 
-            // the current count of handlers in the builder,
-            // must check for null. 
+            // the current count of modules in the builder,
             var initialModuleCount = sut.Modules.Count;
 
             // Act
@@ -264,24 +264,23 @@ namespace PipelineFramework.Tests
         public void WhenUsingBuildToCreateEmptyPipeline_PipelineShouldBeCreated()
         {
             //arrange
-            
-            var testDefinition = new PipelineDefinition<TestPipelineStepContext>(new List<IPipelineStepDefinintion<TestPipelineStepContext>>(), TransactionScopeOption.Suppress, TestUtils.PipelineNameForTest);
-
-            var sut = CreateSut(testDefinition);
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
 
             // act
 
             var result = sut.Make(It.IsAny<Configuration>());
 
             Assert.That(result, Is.Not.Null);
-            
         }
 
         [Test]
         public void WhenUsingBuilder_ShouldCreateExecutionContextInsidePipeline()
         {
             //arrange
-            var stepList = new List<IPipelineStepDefinintion<TestPipelineStepContext>>();
+            var stepList = new List<IPipelineStepDefinintion<TestPipelineStepContext>>
+            {
+                It.IsAny<PipelineStepDefinintion<TestPipelineStepContext>>()
+            };
 
             var testDefinition = new PipelineDefinition<TestPipelineStepContext>(stepList, TransactionScopeOption.Suppress, TestUtils.PipelineNameForTest);
 
@@ -294,25 +293,73 @@ namespace PipelineFramework.Tests
 
             var result = sut.Make(It.IsAny<Configuration>());
 
+            // assert
+
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.TypeOf<Pipeline<TestPipelineStepContext>>());
-            var actualPipeline = (Pipeline<TestPipelineStepContext>)result;
+            var actualPipeline = (Pipeline<TestPipelineStepContext>) result;
 
             var execContext = actualPipeline.ExecutionContext;
             Assert.That(execContext, Is.Not.Null);
-            Assert.That(execContext.PipelineName, Is.EqualTo(TestUtils.PipelineNameForTest));
+            Assert.That(execContext.PipelineName, Is.EqualTo(testDefinition.PipelineName));
 
-            Assert.That(execContext.PipelineScope, Is.EqualTo(TransactionScopeOption.Suppress));
+            Assert.That(execContext.PipelineScope, Is.EqualTo(testDefinition.PipelineScopeOption));
             Assert.That(execContext.StepContext, Is.Null);
             Assert.That(execContext.Steps, Is.Not.Null);
             Assert.That(execContext.Steps.Count, Is.EqualTo(stepList.Count));
 
-            Assert.That(execContext.PipelineStageExecuted, Is.EqualTo(stepExecutedHandler));
-            Assert.That(execContext.PipelineStageExecuting, Is.EqualTo(stepExecutingHandler));
-            Assert.That(execContext.PipelineStageExecuted, Is.SameAs(stepExecutedHandler));
-            Assert.That(execContext.PipelineStageExecuting, Is.SameAs(stepExecutingHandler));
+            Assert.That(execContext.PipelineStageExecuted, new TestUtils.EventHandlerConstraint<PipelineEventFiredEventArgs>(stepExecutedHandler));
+            Assert.That(execContext.PipelineStageExecuting, new TestUtils.EventHandlerConstraint<PipelineEventFiringEventArgs>(stepExecutingHandler));
+        }
+
+        [Test]
+        public void WhenUsingBuilder_ShouldPassModuleHandlersToDiscoveryFactory()
+        {
+            //arrange
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
+
+            var moduleInitilizingHandler = sut.ModuleInitializingHandler;
+            var moduleInitilizedHandler = sut.ModuleInitializedHandler;
+
+            // act
+            sut.Make(It.IsAny<Configuration>());
+
+            // assert
+            _mockDiscoveryFactory.Verify(m =>
+                m.GetDiscovery<TestPipeline, TestPipelineStepContext>(
+                    It.IsAny<TestPipeline>(),
+                    It.Is<EventHandler<PipelineModuleInitializedEventArgs>>(ed => ed == moduleInitilizedHandler),
+                    It.Is<EventHandler<PipelineModuleInitializingEventArgs>>(ing => ing == moduleInitilizingHandler)));
+        }
+
+        [Test]
+        public void WhenUsingBuilder_ShouldPassCorrectValuesToDiscoveryInstance()
+        {
+            // arrange
+            var theConfig = It.IsAny<Configuration>();
+            var sut = CreateSut(It.IsAny<PipelineDefinition<TestPipelineStepContext>>());
+            sut.RegisterModule<ParamlessModule>();
+            var modules = sut.Modules;
+
+            // act
+            sut.Make(theConfig);
+
+            // assert
+
+            _mockDiscovery.Verify(m =>
+                m.ResolvePipeline(
+                    It.Is<IEnumerable<PipelineModule<TestPipeline, TestPipelineStepContext>>>(i => i.Count() == modules.Count),
+                    It.Is<Configuration>(c => c == theConfig)));
+        }
+
+        [Test]
+        public void WhenUsingStaticCtorMethod_ShouldReturnBuilder()
+        {
+            // arrange & act 
+            var builder = PipelineBuilder.CreatePipeline<TestPipeline, TestPipelineStepContext>();
+
+            //assert
+            Assert.That(builder, Is.Not.Null);
         }
     }
-
-
 }
