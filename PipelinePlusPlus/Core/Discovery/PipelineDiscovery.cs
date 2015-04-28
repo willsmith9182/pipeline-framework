@@ -33,7 +33,7 @@ namespace PipelinePlusPlus.Core.Discovery
             _moduleInitializingHandler = moduleInitializingHandler;
         }
 
-        public PipelineDefinition<TContext> ResolvePipeline(IEnumerable<PipelineModule<TPipeline, TContext>> modules, Configuration appConfig)
+        public IPipelineDefinition<TContext> ResolvePipeline(IEnumerable<PipelineModule<TPipeline, TContext>> modules, Configuration appConfig)
         {
             // initialise the pipeline steps and grab definitions for method invocation and attribute info.
             var definition = CreateDefinition();
@@ -48,7 +48,7 @@ namespace PipelinePlusPlus.Core.Discovery
             return definition;
         }
 
-        private PipelineDefinition<TContext> CreateDefinition()
+        private IPipelineDefinition<TContext> CreateDefinition()
         {
             var properties = _pipelineSteps.GetType()
                 .GetProperties()

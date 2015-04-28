@@ -7,18 +7,18 @@ using PipelinePlusPlus.Core.Steps;
 
 namespace PipelinePlusPlus.Core.Discovery
 {
-    internal class DiscoverFactory : IDiscoveryFactory
+    internal class DiscoveryFactory : IDiscoveryFactory
     {
         private readonly IDynamicModuleConfig _dynamicModuleConfig;
         private readonly IPipelineModuleManager _moduleManager;
         // non ioc based. 
         // ncrunch: no coverage start
-        public DiscoverFactory() : this(new DynamicModuleConfig(), new PipelineModuleMananger())
+        public DiscoveryFactory() : this(new DynamicModuleConfig(), new PipelineModuleMananger())
         {
         }
 
         // ncrunch: no coverage end
-        public DiscoverFactory(IDynamicModuleConfig dynamicModuleConfig, IPipelineModuleManager moduleManager)
+        public DiscoveryFactory(IDynamicModuleConfig dynamicModuleConfig, IPipelineModuleManager moduleManager)
         {
             _dynamicModuleConfig = dynamicModuleConfig;
             _moduleManager = moduleManager;

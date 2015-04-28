@@ -20,15 +20,13 @@ using PipelinePlusPlus.Core.Steps;
 namespace PipelineFramework.Tests
 {
     [TestFixture]
-    // resetting delegates is a pain in the arse. 
-    [SuppressMessage("ReSharper", "DelegateSubtraction")]
     public class PipelineDiscoveryTests
     {
         private Mock<IDynamicModuleConfig> _mockDynamicConfig;
         private Mock<PipelineDynamicModuleConfig> _mockDynamicConfigResult;
         private Mock<IPipelineModuleManager> _mockModuleMananger;
-        private EventHandler<PipelineModuleInitializedEventArgs> _moduleInitializedHandler;
-        private EventHandler<PipelineModuleInitializingEventArgs> _moduleInitializingHandler;
+        private EventHandler<PipelineModuleInitializedEventArgs> _moduleInitializedHandler = (s, a) => { };
+        private EventHandler<PipelineModuleInitializingEventArgs> _moduleInitializingHandler = (s, a) => { };
 
         public void Setup<TPipeline, TContext>() where TContext : PipelineStepContext where TPipeline : PipelineSteps
         {
@@ -49,26 +47,9 @@ namespace PipelineFramework.Tests
                 .Returns(_mockDynamicConfigResult.Object);
 
             // reset event handlers. 
-            _moduleInitializingHandler += (sender, args) => { };
-            _moduleInitializedHandler += (sender, args) => { };
-            if (_moduleInitializingHandler != null)
-            {
-                var initliaizing = _moduleInitializingHandler.GetInvocationList();
-
-                foreach (var del in initliaizing)
-                {
-                    _moduleInitializingHandler -= (EventHandler<PipelineModuleInitializingEventArgs>) del;
-                }
-            }
-
-            if (_moduleInitializedHandler != null)
-            {
-                var initialized = _moduleInitializedHandler.GetInvocationList();
-                foreach (var del in initialized)
-                {
-                    _moduleInitializedHandler -= (EventHandler<PipelineModuleInitializedEventArgs>) del;
-                }
-            }
+            _moduleInitializingHandler = (s, a) => { };
+            _moduleInitializedHandler = (s, a) => { };
+            
         }
 
         private IPipelineDiscovery<TPipeline, DiscoveryTestStepContext> CreateSut<TPipeline>(TPipeline steps, Action postSetup = null) where TPipeline : PipelineSteps
@@ -92,7 +73,7 @@ namespace PipelineFramework.Tests
             var sut = CreateSut(steps);
 
             // act
-            PipelineDefinition<DiscoveryTestStepContext> result = null;
+            IPipelineDefinition<DiscoveryTestStepContext> result = null;
 
             Assert.DoesNotThrow(() => { result = sut.ResolvePipeline(steps.CreateEmptyModuleCollection(), config); });
 
@@ -147,7 +128,7 @@ namespace PipelineFramework.Tests
             var sut = CreateSut(steps);
 
             // act
-            PipelineDefinition<DiscoveryTestStepContext> result = null;
+            IPipelineDefinition<DiscoveryTestStepContext> result = null;
 
             Assert.DoesNotThrow(() => { result = sut.ResolvePipeline(steps.CreateEmptyModuleCollection(), config); });
 
@@ -179,7 +160,7 @@ namespace PipelineFramework.Tests
             var sut = CreateSut(steps);
 
             // act
-            PipelineDefinition<DiscoveryTestStepContext> result = null;
+            IPipelineDefinition<DiscoveryTestStepContext> result = null;
 
             Assert.DoesNotThrow(() => { result = sut.ResolvePipeline(new List<PipelineModule<ThreeStepsWithRequiredTranScope, DiscoveryTestStepContext>>(), config); });
 
@@ -206,7 +187,7 @@ namespace PipelineFramework.Tests
             var sut = CreateSut(steps);
 
             // act
-            PipelineDefinition<DiscoveryTestStepContext> result = null;
+            IPipelineDefinition<DiscoveryTestStepContext> result = null;
 
             Assert.DoesNotThrow(() => { result = sut.ResolvePipeline(new List<PipelineModule<ThreeStepsWithRequiresNewTranScope, DiscoveryTestStepContext>>(), config); });
 
@@ -393,7 +374,7 @@ namespace PipelineFramework.Tests
             });
 
             // act
-            PipelineDefinition<DiscoveryTestStepContext> result = null;
+            IPipelineDefinition<DiscoveryTestStepContext> result = null;
 
             Assert.DoesNotThrow(() => { result = sut.ResolvePipeline(new List<PipelineModule<ThreeStepsWithRequiresNewTranScope, DiscoveryTestStepContext>>(), config); });
 

@@ -5,7 +5,7 @@ namespace PipelinePlusPlus.Core.Exceptions
     [Serializable]
     public sealed class PipelineException : Exception
     {
-        internal PipelineException(string reason, string moduleName) : base(string.Format("Pipeline exception encountered: '{0}'. Module '{1}'.", reason, moduleName))
+        internal PipelineException(string reason, string moduleName) : base(string.Format("Pipeline execution cancelled: '{0}'. Module '{1}'.", reason, moduleName))
         {
         }
 

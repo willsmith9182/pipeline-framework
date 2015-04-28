@@ -11,12 +11,12 @@ namespace PipelinePlusPlus.Core.Context
 {
     public class PipelineExecutionContext<TContext> : IPipelineExecutionContext<TContext> where TContext : PipelineStepContext
     {
-        private readonly PipelineDefinition<TContext> _definition;
+        private readonly IPipelineDefinition<TContext> _definition;
         private readonly Collection<PipelineException> _exceptions;
         private readonly Func<PipelineException, bool> _onException;
         private TContext _stepContext;
 
-        public PipelineExecutionContext(PipelineDefinition<TContext> defninition, Func<PipelineException, bool> onException = null)
+        public PipelineExecutionContext(IPipelineDefinition<TContext> defninition, Func<PipelineException, bool> onException = null)
         {
             _definition = defninition;
             _onException = onException ?? (e => true);
@@ -34,8 +34,8 @@ namespace PipelinePlusPlus.Core.Context
             get { return _definition.Actions; }
         }
 
-        public EventHandler<PipelineEventFiredEventArgs> PipelineStageExecuted { get; set; }
-        public EventHandler<PipelineEventFiringEventArgs> PipelineStageExecuting { get; set; }
+        public EventHandler<PipelineEventFiredEventArgs> PipelineStageExecuted { get; internal set; }
+        public EventHandler<PipelineEventFiringEventArgs> PipelineStageExecuting { get; internal set; }
         public bool CancelExecution { get; private set; }
 
         public TContext StepContext
@@ -72,7 +72,7 @@ namespace PipelinePlusPlus.Core.Context
         {
             var ex = new PipelineException(moduleName, e);
             _exceptions.Add(ex);
-            CancelExecution = _onException(ex);
+            if (!CancelExecution && _onException(ex)) CancelExecution = true;
         }
 
         private void ResetContext(TContext newContext)

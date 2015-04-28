@@ -7,8 +7,8 @@ namespace PipelinePlusPlus.Core.Context
 {
     public interface IPipelineExecutionContext<out TContext> where TContext : PipelineStepContext
     {
-        EventHandler<PipelineEventFiredEventArgs> PipelineStageExecuted { get; set; }
-        EventHandler<PipelineEventFiringEventArgs> PipelineStageExecuting { get; set; }
+        EventHandler<PipelineEventFiredEventArgs> PipelineStageExecuted { get; }
+        EventHandler<PipelineEventFiringEventArgs> PipelineStageExecuting { get;}
         bool CancelExecution { get; }
         TContext StepContext { get; }
         TransactionScopeOption PipelineScope { get; }

@@ -8,11 +8,6 @@ namespace PipelinePlusPlus.Core.Discovery
 {
     internal interface IPipelineDiscovery<TPipeline, TContext> where TPipeline : PipelineSteps where TContext : PipelineStepContext
     {
-        PipelineDefinition<TContext> ResolvePipeline(IEnumerable<PipelineModule<TPipeline, TContext>> modules, Configuration appConfig);
-    }
-
-    internal interface IPipelineDiscovery
-    {
-        PipelineDefinition<TContext> Discover<TContext>(PipelineSteps pipelineSteps) where TContext : PipelineStepContext;
+        IPipelineDefinition<TContext> ResolvePipeline(IEnumerable<PipelineModule<TPipeline, TContext>> modules, Configuration appConfig);
     }
 }

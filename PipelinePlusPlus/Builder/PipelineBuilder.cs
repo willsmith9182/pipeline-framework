@@ -31,7 +31,7 @@ namespace PipelinePlusPlus.Builder
         private readonly IList<PipelineModule<TPipeline, TContext>> _modules;
         // ncrunch: no coverage start
         internal PipelineBuilder()
-            : this(new DiscoverFactory())
+            : this(new DiscoveryFactory())
         {
         }
 

@@ -7,7 +7,7 @@ using PipelinePlusPlus.Core.Steps;
 
 namespace PipelinePlusPlus.Core.Discovery
 {
-    public class PipelineDefinition<TContext> where TContext : PipelineStepContext
+    public class PipelineDefinition<TContext> : IPipelineDefinition<TContext> where TContext : PipelineStepContext
     {
         internal PipelineDefinition(IEnumerable<IPipelineStepDefinintion<TContext>> actions, TransactionScopeOption pipelineScopeOption, string pipelineName)
         {
