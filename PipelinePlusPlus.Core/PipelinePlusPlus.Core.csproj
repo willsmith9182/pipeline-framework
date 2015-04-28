@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4DB61592-8C7E-4A70-8BB0-8BEEB315E481}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PipelinePlusPlus.Core</RootNamespace>
+    <AssemblyName>PipelinePlusPlus.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MoreLinq.Portable">
+      <HintPath>..\packages\MoreLinq.Portable.1.1.0\lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\MoreLinq.Portable.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes\PipelineStepAttribute.cs" />
+    <Compile Include="ConfigurationElements\ConfigExtensions.cs" />
+    <Compile Include="ConfigurationElements\PipelineElement.cs" />
+    <Compile Include="ConfigurationElements\PipelineElementCollection.cs" />
+    <Compile Include="ConfigurationElements\PipelineFrameworkConfigurationSection.cs" />
+    <Compile Include="Context\IPipelineExecutionContext.cs" />
+    <Compile Include="Context\PipelineExecutionContext.cs" />
+    <Compile Include="Context\PipelineStepContext.cs" />
+    <Compile Include="Discovery\DiscoveryFactory.cs" />
+    <Compile Include="Discovery\IDiscoveryFactory.cs" />
+    <Compile Include="Discovery\IPipelineDefinition.cs" />
+    <Compile Include="Discovery\IPipelineDiscovery.cs" />
+    <Compile Include="Discovery\PipelineDefinition.cs" />
+    <Compile Include="Discovery\PipelineDiscovery.cs" />
+    <Compile Include="DynamicConfig\DynamicModuleConfig.cs" />
+    <Compile Include="DynamicConfig\IDynamicModuleConfig.cs" />
+    <Compile Include="DynamicConfig\ModuleConfig.cs" />
+    <Compile Include="DynamicConfig\ModulesConfig.cs" />
+    <Compile Include="DynamicConfig\PipelineDynamicModulesConfig.cs" />
+    <Compile Include="EventArgs\PipelineCancelEventArgsBase.cs" />
+    <Compile Include="EventArgs\PipelineEventArgsBase.cs" />
+    <Compile Include="EventArgs\PipelineEventFiredEventArgs.cs" />
+    <Compile Include="EventArgs\PipelineEventFiringEventArgs.cs" />
+    <Compile Include="EventArgs\PipelineExceptionEventArgs.cs" />
+    <Compile Include="EventArgs\PipelineModuleInitializedEventArgs.cs" />
+    <Compile Include="EventArgs\PipelineModuleInitializingEventArgs.cs" />
+    <Compile Include="Exceptions\PipelineConfigException.cs" />
+    <Compile Include="Exceptions\PipelineDicoveryException.cs" />
+    <Compile Include="Exceptions\PipelineException.cs" />
+    <Compile Include="Exceptions\PipelineStepException.cs" />
+    <Compile Include="IPipeline.cs" />
+    <Compile Include="Modules\DynamicPipelineModule.cs" />
+    <Compile Include="Modules\IPipelineModule.cs" />
+    <Compile Include="Modules\Mananger\IPipelineModuleManager.cs" />
+    <Compile Include="Modules\Mananger\PipelineModuleMananger.cs" />
+    <Compile Include="Modules\PipelineModule.cs" />
+    <Compile Include="Pipeline.cs" />
+    <Compile Include="PipelineResult.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Steps\IPipelineStepDefinintion.cs" />
+    <Compile Include="Steps\PipelineStep.cs" />
+    <Compile Include="Steps\PipelineStepDefinintion.cs" />
+    <Compile Include="Steps\PipelineSteps.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utils\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

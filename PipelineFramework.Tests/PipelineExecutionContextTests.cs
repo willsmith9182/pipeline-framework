@@ -166,9 +166,9 @@ namespace PipelineFramework.Tests
                 // will not halt on 2nd
                 _onErrorHandler = e =>
                 {
-                    if (e.InnerException is ArgumentException)
-                        return false;
-                    return true;
+                    if (e.InnerException is InvalidOperationException)
+                        return true;
+                    return false;
                 };
             });
 

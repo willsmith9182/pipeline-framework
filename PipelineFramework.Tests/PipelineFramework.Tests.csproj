@@ -121,6 +121,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PipelinePlusPlus.Core\PipelinePlusPlus.Core.csproj">
+      <Project>{4DB61592-8C7E-4A70-8BB0-8BEEB315E481}</Project>
+      <Name>PipelinePlusPlus.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PipelinePlusPlus\PipelinePlusPlus.csproj">
       <Project>{BD234F0C-B458-4C7A-B0B6-CD4E69FDA1C8}</Project>
       <Name>PipelinePlusPlus</Name>
