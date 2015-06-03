@@ -41,7 +41,10 @@ namespace PipelineFramework.Tests
 
 
             // Act
-            var ex = Assert.Throws<PipelineConfigException>(() => { var result = _sut.GetConfig(TestUtils.PipelineNameForTest, config); });
+            var ex = Assert.Throws<PipelineConfigException>(() =>
+            {
+                var result = _sut.GetConfig(TestUtils.PipelineNameForTest, config);
+            });
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo(string.Format("Unable to load config for pipeline '{0}', please check your app/web.config", TestUtils.PipelineNameForTest)));

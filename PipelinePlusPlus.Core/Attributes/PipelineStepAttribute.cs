@@ -4,6 +4,7 @@ using System.Transactions;
 
 namespace PipelinePlusPlus.Core.Attributes
 {
+    // multiples are not allowed. 
     [AttributeUsage(AttributeTargets.Property)]
     public class PipelineStepAttribute : Attribute
     {

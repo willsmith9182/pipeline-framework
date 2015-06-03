@@ -16,7 +16,9 @@ using PipelinePlusPlus.Core.Steps;
 
 namespace PipelinePlusPlus.Core.Discovery
 {
-    internal class PipelineDiscovery<TPipeline, TContext> : IPipelineDiscovery<TPipeline, TContext> where TContext : PipelineStepContext where TPipeline : PipelineSteps
+    internal class PipelineDiscovery<TPipeline, TContext> : IPipelineDiscovery<TPipeline, TContext>
+        where TContext : PipelineStepContext
+        where TPipeline : PipelineSteps
     {
         private readonly IDynamicModuleConfig _dynamicModuleConfig;
         private readonly EventHandler<PipelineModuleInitializedEventArgs> _moduleInitializedHandler;
@@ -50,9 +52,10 @@ namespace PipelinePlusPlus.Core.Discovery
 
         private IPipelineDefinition<TContext> CreateDefinition()
         {
+            var t = typeof (PipelineStep<TContext>);
             var properties = _pipelineSteps.GetType()
                 .GetProperties()
-                .Where(p => p.PropertyType == typeof (PipelineStep<TContext>))
+                .Where(p => p.PropertyType.IsAssignableFrom(t))
                 .ToList();
 
             if (!properties.Any())
@@ -80,7 +83,7 @@ namespace PipelinePlusPlus.Core.Discovery
         private static PipelineStepDefinintion<TContext> CreateStepDefinition(PropertyInfo prop, TPipeline steps)
         {
             //get the decorating attribute off. 
-            var attr = prop.GetCustomAttributes(typeof (PipelineStepAttribute), true)
+            var attr = prop.GetCustomAttributes(typeof(PipelineStepAttribute), true)
                 .Cast<PipelineStepAttribute>()
                 .FirstOrDefault();
             // has to be done. shame.
